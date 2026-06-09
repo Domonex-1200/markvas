@@ -1,15 +1,28 @@
-node_modules
-dist
-out
-.next
-.turbo
-coverage
+# ── IntelliJ ───────────────────────────────────────────────
+.idea/dataSources.xml
+.idea/dataSources/
+.idea/sqldialects.xml
+backend/.gradle/
+backend/build/
+
+# ── Gradle ─────────────────────────────────────────────────
+.gradle/
+build/
+
+# ── Node / npm ─────────────────────────────────────────────
+node_modules/
+dist/
+.next/
+.turbo/
+
+# ── 환경변수 ────────────────────────────────────────────────
 .env
-.env.*
-!.env.example
-*.log
-release
-uploads
-local-workspaces
-.claude
-npm
+.env.local
+.env.*.local
+
+# ── OS ─────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Claude ─────────────────────────────────────────────────
+.claude/
