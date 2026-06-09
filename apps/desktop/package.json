@@ -1,0 +1,41 @@
+{
+  "name": "@markdown-canvas/desktop",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "out/main/index.js",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@electron-toolkit/utils": "^3.0.0",
+    "@markdown-canvas/shared": "0.1.0",
+    "@milkdown/core": "^7.6.5",
+    "@milkdown/crepe": "^7.6.5",
+    "@milkdown/react": "^7.6.5",
+    "d3-force": "^3.0.0",
+    "electron-store": "^10.0.0",
+    "highlight.js": "^11.11.1",
+    "html2pdf.js": "^0.10.2",
+    "lucide-react": "^0.468.0",
+    "pptxgenjs": "^4.0.1",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@types/d3-force": "^3.0.10",
+    "@types/node": "^22.10.1",
+    "@types/react": "18.3.12",
+    "@types/react-dom": "18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "electron": "^33.2.1",
+    "electron-vite": "^2.3.0",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.16",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.11"
+  }
+}

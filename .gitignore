@@ -1,0 +1,15 @@
+node_modules
+dist
+out
+.next
+.turbo
+coverage
+.env
+.env.*
+!.env.example
+*.log
+release
+uploads
+local-workspaces
+.claude
+npm

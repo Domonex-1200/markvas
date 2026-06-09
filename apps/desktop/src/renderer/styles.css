@@ -1,0 +1,467 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── 전역 스크롤바 스타일 (Obsidian/VS Code 스타일) ── */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.18) transparent;
+}
+*::-webkit-scrollbar { width: 6px; height: 6px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.18); border-radius: 3px; }
+*::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.32); }
+
+html.dark * { scrollbar-color: rgba(255,255,255,0.15) transparent; }
+html.dark *::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); }
+html.dark *::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.28); }
+
+@layer base {
+  /* ── 라이트 모드 색상 변수 ── */
+  :root {
+    --color-ink:    28, 36, 48;
+    --color-paper:  248, 247, 243;
+    --color-line:   216, 221, 214;
+    --color-accent: 43, 122, 120;
+
+    /* 다크모드 오버라이드용 표면 변수 */
+    --surface-primary:   255, 255, 255;
+    --surface-secondary: 245, 245, 244;
+    --surface-tertiary:  231, 229, 228;
+    --text-muted:        100, 116, 139;
+  }
+
+  /* ── 다크 모드 색상 변수 ── */
+  html.dark {
+    --color-ink:    205, 214, 244;
+    --color-paper:  30, 30, 46;
+    --color-line:   69, 71, 90;
+    --color-accent: 94, 196, 192;
+
+    --surface-primary:   49, 50, 68;
+    --surface-secondary: 40, 40, 56;
+    --surface-tertiary:  60, 62, 82;
+    --text-muted:        166, 173, 200;
+  }
+
+  body {
+    margin: 0;
+    overflow: hidden;
+    background-color: rgb(var(--color-paper));
+    color: rgb(var(--color-ink));
+  }
+}
+
+@layer components {
+  .icon-button {
+    @apply grid h-9 w-9 place-items-center rounded border border-line bg-white text-ink transition hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-40;
+  }
+
+  .markdown-editor-shell {
+    background: var(--mc-editor-shell-bg, theme("colors.paper"));
+    overflow: hidden;
+  }
+
+  .formatting-toolbar {
+    background: var(--mc-format-toolbar-bg, theme("colors.stone.50"));
+    border-color: var(--mc-format-toolbar-border, theme("colors.line"));
+  }
+
+  .format-command-button {
+    @apply inline-grid h-8 min-w-8 place-items-center rounded border border-transparent bg-white px-2 text-ink transition hover:border-accent hover:text-accent;
+    background: var(--mc-format-button-bg, #ffffff);
+    color: var(--mc-format-button-color, theme("colors.ink"));
+  }
+
+  .view-mode-button {
+    @apply grid h-7 w-8 place-items-center rounded text-slate-500 transition hover:text-accent;
+  }
+
+  .markdown-editor-pane {
+    background: var(--mc-editor-bg, #ffffff);
+    overflow: hidden;
+  }
+
+  .markdown-editor-textarea {
+    background: var(--mc-editor-bg, #ffffff);
+    color: var(--mc-editor-text, theme("colors.ink"));
+    caret-color: var(--mc-editor-caret, theme("colors.accent"));
+    /* Obsidian/VS Code 수준 에디터 폰트 */
+    font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", ui-monospace,
+      SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    font-size: 14px;
+    line-height: 1.75;
+    letter-spacing: 0;
+    tab-size: 2;
+    /* 선택 영역 색상 */
+    overflow: auto;
+    overscroll-behavior: contain;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+  }
+
+  .markdown-editor-textarea::selection {
+    background: rgba(43, 122, 120, 0.2);
+  }
+
+  .markdown-preview-pane {
+    background: var(--mc-preview-bg, theme("colors.paper"));
+    overflow: auto;
+    overscroll-behavior: contain;
+    scroll-behavior: auto;
+  }
+
+  .tree-row {
+    @apply flex h-8 w-full items-center gap-2 rounded px-2 text-left text-sm;
+    min-width: 0;
+  }
+
+  .prose-canvas {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR",
+      "Apple SD Gothic Neo", sans-serif;
+    font-size: 15px;
+    line-height: 1.8;
+    color: rgb(var(--color-ink));
+    word-break: break-word;
+    overflow-wrap: break-word;
+    min-height: 100%;
+  }
+
+  .markdown-blank-space {
+    pointer-events: none;
+  }
+
+  .prose-canvas h1 {
+    font-size: 1.875rem;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-top: 0;
+    margin-bottom: 1.25rem;
+    color: rgb(var(--color-ink));
+    border-bottom: 2px solid rgb(var(--color-line));
+    padding-bottom: 0.5rem;
+  }
+
+  .prose-canvas h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1.35;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    color: rgb(var(--color-ink));
+  }
+
+  .prose-canvas h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    line-height: 1.4;
+    margin-top: 1.75rem;
+    margin-bottom: 0.75rem;
+    color: rgb(var(--color-ink));
+  }
+
+  .prose-canvas p,
+  .prose-canvas ul,
+  .prose-canvas ol,
+  .prose-canvas blockquote,
+  .prose-canvas pre,
+  .prose-canvas table {
+    margin-bottom: 1.1rem;
+  }
+
+  .prose-canvas a {
+    @apply cursor-pointer text-accent underline underline-offset-2;
+  }
+
+  .prose-canvas ul {
+    @apply list-disc pl-6;
+  }
+
+  .prose-canvas ol {
+    @apply list-decimal pl-6;
+  }
+
+  .prose-canvas blockquote {
+    @apply border-l-4 border-accent bg-teal-50 px-4 py-3 text-slate-700;
+  }
+
+  .prose-canvas code {
+    @apply rounded bg-stone-100 px-1.5 py-0.5 font-mono text-sm;
+  }
+
+  /* Plain code block (no language) */
+  .prose-canvas pre.code-plain {
+    @apply overflow-auto rounded border p-4;
+    background: #0f172a;
+    border-color: #1e293b;
+    color: #f8fafc;
+  }
+  .prose-canvas pre.code-plain code {
+    @apply bg-transparent p-0 font-mono text-sm;
+    color: #f8fafc;
+  }
+
+  /* Highlighted code block (with language, via highlight.js) */
+  .prose-canvas pre.code-highlighted {
+    @apply overflow-auto rounded border border-line p-0;
+    background: #f6f8fa;
+    color: #1f2937;
+  }
+  .prose-canvas pre.code-highlighted code {
+    @apply block overflow-auto p-4 font-mono text-sm leading-6;
+    background: transparent;
+    color: inherit;
+  }
+
+  /* Fallback for pre blocks without class (legacy) */
+  .prose-canvas pre:not(.code-plain):not(.code-highlighted) {
+    @apply overflow-auto rounded border p-4;
+    background: #0f172a;
+    border-color: #1e293b;
+    color: #f8fafc;
+  }
+  .prose-canvas pre:not(.code-plain):not(.code-highlighted) code {
+    @apply bg-transparent p-0 font-mono text-sm;
+    color: #f8fafc;
+  }
+
+  .prose-canvas table {
+    @apply w-full border-collapse overflow-hidden rounded border border-line text-sm;
+  }
+
+  .prose-canvas th,
+  .prose-canvas td {
+    @apply border border-line px-3 py-2 text-left;
+  }
+
+  .prose-canvas th {
+    @apply bg-stone-100 font-semibold;
+  }
+
+  .prose-canvas hr {
+    @apply my-6 border-line;
+  }
+
+  .prose-canvas input[type="checkbox"] {
+    @apply mr-2 align-middle;
+  }
+
+  .prose-img {
+    @apply my-3 max-w-full rounded border border-line;
+  }
+
+  .backup-modal,
+  .backup-modal-header {
+    background: rgb(var(--surface-primary));
+    color: rgb(var(--color-ink));
+  }
+
+  .backup-version-sidebar,
+  .backup-preview-pane {
+    background: rgb(var(--surface-primary));
+  }
+
+  .backup-version-count {
+    background: rgb(var(--surface-secondary));
+    color: rgb(var(--text-muted));
+  }
+
+  .backup-version-button {
+    color: rgb(var(--color-ink));
+    transition: background-color 120ms ease, color 120ms ease;
+  }
+
+  .backup-version-button:hover {
+    background: rgb(var(--surface-secondary));
+  }
+
+  .backup-version-button.is-selected {
+    background: rgba(43, 122, 120, 0.12);
+    color: rgb(var(--color-accent));
+  }
+
+  .backup-restore-button {
+    background: #0f766e;
+    border-color: #0f766e;
+    color: #ffffff;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.14);
+    transition: background-color 120ms ease, border-color 120ms ease, transform 120ms ease;
+  }
+
+  .backup-restore-button:hover {
+    background: #115e59;
+    border-color: #115e59;
+  }
+
+  .backup-restore-button:active {
+    transform: translateY(1px);
+  }
+
+  .backup-preview-content {
+    background: #f8fafc;
+    border-color: rgb(var(--color-line));
+    color: #0f172a;
+  }
+}
+
+/* highlight.js theme overrides — keep below Tailwind to win specificity */
+.hljs {
+  background: transparent !important;
+}
+
+/* ── 다크 모드 표면 오버라이드 ──────────────────────────────────────────── */
+html.dark .bg-white               { background-color: rgb(var(--surface-primary)) !important; }
+html.dark .bg-stone-50            { background-color: rgb(var(--surface-secondary)) !important; }
+html.dark .bg-stone-100           { background-color: rgb(var(--surface-tertiary)) !important; }
+html.dark .bg-teal-50             { background-color: rgba(94,196,192,.12) !important; }
+
+html.dark .border-line            { border-color: rgb(var(--color-line)) !important; }
+
+html.dark .text-slate-500,
+html.dark .text-slate-600         { color: rgb(var(--text-muted)) !important; }
+html.dark .text-slate-400         { color: rgba(166,173,200,.7) !important; }
+
+/* 사이드바 */
+html.dark aside.bg-white          { background-color: rgb(var(--surface-primary)) !important; }
+
+/* 툴바 */
+html.dark header.bg-white         { background-color: rgb(var(--surface-primary)) !important; }
+
+/* 에디터 */
+html.dark .markdown-editor-pane   { background-color: rgb(var(--surface-primary)) !important; }
+html.dark .markdown-editor-textarea {
+  background-color: rgb(var(--surface-primary)) !important;
+  color: rgb(var(--color-ink)) !important;
+}
+
+/* 미리보기 */
+html.dark .prose-canvas           { color: rgb(var(--color-ink)); }
+html.dark .prose-canvas h1,
+html.dark .prose-canvas h2,
+html.dark .prose-canvas h3        { color: rgb(var(--color-ink)); }
+html.dark .prose-canvas a         { color: rgb(var(--color-accent)); }
+html.dark .prose-canvas blockquote {
+  background: rgba(94,196,192,.1) !important;
+  border-color: rgb(var(--color-accent)) !important;
+  color: rgb(var(--color-ink));
+}
+html.dark .prose-canvas code      {
+  background: rgb(var(--surface-tertiary)) !important;
+  color: rgb(var(--color-ink));
+}
+html.dark .prose-canvas pre.code-highlighted {
+  background: rgb(var(--surface-secondary)) !important;
+  border-color: rgb(var(--color-line)) !important;
+}
+html.dark .prose-canvas pre.code-plain {
+  background: #111827 !important;
+  border-color: #374151 !important;
+  color: #f9fafb !important;
+}
+html.dark .prose-canvas pre.code-plain code,
+html.dark .prose-canvas pre:not(.code-plain):not(.code-highlighted) code {
+  background: transparent !important;
+  color: #f9fafb !important;
+}
+html.dark .prose-canvas pre.code-highlighted code {
+  background: transparent !important;
+}
+html.dark .prose-canvas th        { background: rgb(var(--surface-tertiary)) !important; }
+html.dark .prose-canvas th,
+html.dark .prose-canvas td        { border-color: rgb(var(--color-line)) !important; }
+html.dark article.prose-canvas    { background: rgb(var(--surface-primary)) !important; }
+
+/* 버튼 */
+html.dark .icon-button {
+  background-color: rgb(var(--surface-primary)) !important;
+  border-color: rgb(var(--color-line)) !important;
+  color: rgb(var(--color-ink)) !important;
+}
+html.dark .icon-button:hover {
+  border-color: rgb(var(--color-accent)) !important;
+  color: rgb(var(--color-accent)) !important;
+}
+
+/* 트리 행 */
+html.dark .tree-row:hover         { background-color: rgb(var(--surface-tertiary)) !important; }
+html.dark .tree-row.bg-teal-50    { background-color: rgba(94,196,192,.15) !important; }
+
+/* 입력 */
+html.dark input,
+html.dark textarea,
+html.dark select {
+  background-color: rgb(var(--surface-primary)) !important;
+  color: rgb(var(--color-ink)) !important;
+  border-color: rgb(var(--color-line)) !important;
+}
+
+/* 모달 배경 */
+html.dark .rounded.border.bg-white { background-color: rgb(var(--surface-primary)) !important; }
+
+/* 포맷 툴바 */
+html.dark .formatting-toolbar     { background: rgb(var(--surface-secondary)) !important; }
+html.dark .format-command-button  { background: rgb(var(--surface-primary)) !important; color: rgb(var(--color-ink)) !important; }
+
+/* 자동완성 드롭다운 */
+html.dark .autocomplete-dropdown  { background: rgb(var(--surface-primary)) !important; border-color: rgb(var(--color-line)) !important; }
+
+/* 백업 이력 모달 */
+html.dark .backup-version-button.is-selected {
+  background: rgba(94, 196, 192, 0.15) !important;
+  color: rgb(var(--color-ink)) !important;
+}
+html.dark .backup-restore-button {
+  background: #f8fafc !important;
+  border-color: #f8fafc !important;
+  color: #1f2937 !important;
+}
+html.dark .backup-restore-button:hover {
+  background: #e5e7eb !important;
+  border-color: #e5e7eb !important;
+}
+html.dark .backup-preview-content {
+  background: rgb(var(--surface-secondary)) !important;
+  border-color: rgb(var(--color-line)) !important;
+  color: rgb(var(--color-ink)) !important;
+}
+
+/* highlight.js 다크 모드 보정 */
+html.dark .hljs                   { color: #cdd6f4 !important; background: transparent !important; }
+html.dark .hljs-keyword           { color: #cba6f7 !important; }
+html.dark .hljs-string,.hljs-attr { color: #a6e3a1 !important; }
+html.dark .hljs-number            { color: #fab387 !important; }
+html.dark .hljs-comment           { color: #6c7086 !important; }
+html.dark .hljs-title             { color: #89b4fa !important; }
+html.dark .hljs-built_in          { color: #f38ba8 !important; }
+
+/* ── Milkdown WYSIWYG 컨테이너 ── */
+.milkdown-wrapper {
+  /* floating 요소가 컨테이너 안에 머물도록 contain */
+  contain: layout style;
+  position: relative;
+}
+
+/* Milkdown 에디터 본문 영역 */
+.milkdown-wrapper .milkdown {
+  min-height: 100%;
+  padding: 2rem 2.5rem;
+  outline: none;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: rgb(var(--color-ink));
+}
+
+/* 다크모드에서 Milkdown 배경 */
+html.dark .milkdown-wrapper .milkdown {
+  background: rgb(var(--surface-primary));
+  color: rgb(var(--color-ink));
+}
+
+/* find/replace bar animation */
+.find-bar-enter {
+  animation: findBarSlideIn 0.12s ease-out;
+}
+@keyframes findBarSlideIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
