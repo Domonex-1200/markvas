@@ -15,6 +15,11 @@ dist/
 .next/
 .turbo/
 
+# ── Electron 빌드 산출물 ─────────────────────────────────────
+note_program/out/
+note_program/release/
+note_program/dist/
+
 # ── 환경변수 ────────────────────────────────────────────────
 .env
 .env.local
