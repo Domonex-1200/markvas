@@ -1,10 +1,15 @@
 
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useRef, useState } from "react";
 import { ChevronDown, GalleryVerticalEnd } from "lucide-react";
 import { AuthStatus } from "./AuthStatus";
 
-type DropdownItem = { label: string; href: string; description: string };
+type DropdownItem = {
+  label: string;
+  href: string;
+  description: string;
+  requireAuth?: boolean;
+};
 
 const navItems: Array<{
   label: string;
@@ -21,7 +26,7 @@ const navItems: Array<{
     label: "에셋",
     dropdown: [
       { label: "에셋스토어", href: "/assets", description: "무료 테마·템플릿·플러그인" },
-      { label: "에셋 등록", href: "/developer/assets/new", description: "내 에셋 업로드" }
+      { label: "에셋 등록", href: "/developer/assets/new", description: "내 에셋 업로드", requireAuth: true }
     ]
   },
   {
@@ -30,19 +35,13 @@ const navItems: Array<{
       { label: "내 라이브러리", href: "/library", description: "설치한 에셋 모음" },
       { label: "찜한 에셋", href: "/wishlist", description: "나중에 설치할 에셋" }
     ]
-  },
-  {
-    label: "제작자",
-    dropdown: [
-      { label: "에셋 등록", href: "/developer/assets/new", description: "테마·템플릿·플러그인 업로드" },
-      { label: "심사 가이드", href: "/developer/assets/new", description: "에셋 등록 기준 안내" }
-    ]
   }
 ];
 
 export function SiteHeader(): JSX.Element {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const navigate = useNavigate();
 
   function openDropdown(label: string): void {
     if (closeTimer.current) clearTimeout(closeTimer.current);
@@ -51,6 +50,18 @@ export function SiteHeader(): JSX.Element {
 
   function scheduleClose(): void {
     closeTimer.current = setTimeout(() => setOpenMenu(null), 120);
+  }
+
+  function handleNavClick(item: DropdownItem): void {
+    setOpenMenu(null);
+    if (item.requireAuth) {
+      const token = window.localStorage.getItem("accessToken");
+      if (!token) {
+        navigate(`/login?next=${encodeURIComponent(item.href)}`);
+        return;
+      }
+    }
+    navigate(item.href);
   }
 
   return (
@@ -65,7 +76,7 @@ export function SiteHeader(): JSX.Element {
           <GalleryVerticalEnd size={16} />
         </Link>
 
-        {/* Nav — 수학적 중앙 */}
+        {/* Nav */}
         <nav className="flex items-center gap-0.5">
           {navItems.map((item) =>
             item.dropdown ? (
@@ -94,15 +105,21 @@ export function SiteHeader(): JSX.Element {
                   >
                     <div className="p-1.5">
                       {item.dropdown.map((d) => (
-                        <Link
-                          className="flex flex-col rounded-lg px-3.5 py-2.5 transition hover:bg-slate-50"
-                          to={d.href}
+                        <button
                           key={d.label}
-                          onClick={() => setOpenMenu(null)}
+                          className="flex w-full flex-col rounded-lg px-3.5 py-2.5 text-left transition hover:bg-slate-50"
+                          onClick={() => handleNavClick(d)}
                         >
-                          <span className="text-[13px] font-semibold text-slate-900">{d.label}</span>
+                          <span className="flex items-center gap-1.5 text-[13px] font-semibold text-slate-900">
+                            {d.label}
+                            {d.requireAuth && (
+                              <span className="rounded bg-blue-100 px-1.5 py-0.5 text-[10px] font-bold text-blue-600">
+                                로그인 필요
+                              </span>
+                            )}
+                          </span>
                           <span className="mt-0.5 text-xs text-slate-400">{d.description}</span>
-                        </Link>
+                        </button>
                       ))}
                     </div>
                   </div>
