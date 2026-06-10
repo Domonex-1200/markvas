@@ -1,6 +1,6 @@
 
 import { Link } from "react-router-dom";
-import { Heart, Library, LogOut, Settings, ShieldCheck, UploadCloud, UserRound } from "lucide-react";
+import { Heart, Library, LogOut, ShieldCheck, UploadCloud } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { CurrentUser } from "../types";
 import { getMe } from "../lib/api";
@@ -58,48 +58,48 @@ export function AuthStatus(): JSX.Element {
     );
   }
 
-  const ghost = "inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-sm font-semibold text-white/75 transition hover:bg-white/10 hover:text-white";
+  const icon = "grid h-8 w-8 place-items-center rounded-md text-white/60 transition hover:bg-white/10 hover:text-white";
+
+  // 닉네임/이메일 첫 글자로 아바타
+  const avatarChar = (user.nickname ?? user.email)[0].toUpperCase();
 
   return (
-    <div className="flex flex-wrap items-center gap-1">
-      <Link className={ghost} to="/wishlist">
-        <Heart size={14} />
-        찜
+    <div className="flex items-center gap-0.5">
+      <Link className={icon} to="/wishlist" title="찜">
+        <Heart size={16} />
       </Link>
-      <Link className={ghost} to="/library">
-        <Library size={14} />
-        라이브러리
+      <Link className={icon} to="/library" title="라이브러리">
+        <Library size={16} />
       </Link>
       {["DEVELOPER", "ADMIN"].includes(user.role) && (
-        <Link className={ghost} to="/developer/assets">
-          <UploadCloud size={14} />
-          내 에셋
+        <Link className={icon} to="/developer/assets" title="내 에셋">
+          <UploadCloud size={16} />
         </Link>
       )}
       {user.role === "ADMIN" && (
-        <Link className={ghost} to="/admin">
-          <ShieldCheck size={14} />
-          관리자
+        <Link className={icon} to="/admin" title="관리자">
+          <ShieldCheck size={16} />
         </Link>
       )}
-      <Link className={ghost} to="/me">
-        <UserRound size={14} />
-        <span className="max-w-28 truncate">{user.nickname ?? user.email}</span>
-      </Link>
+      {/* 프로필 아바타 */}
       <Link
-        className="grid h-8 w-8 place-items-center rounded-md text-white/60 transition hover:bg-white/10 hover:text-white"
         to="/me"
-        title="설정"
+        title={user.nickname ?? user.email}
+        className="ml-1 grid h-8 w-8 place-items-center rounded-full bg-blue-600 text-xs font-black text-white transition hover:bg-blue-500"
       >
-        <Settings size={14} />
+        {user.profilePictureUrl ? (
+          <img src={user.profilePictureUrl} alt="프로필" className="h-full w-full rounded-full object-cover" />
+        ) : (
+          avatarChar
+        )}
       </Link>
       <button
-        className="grid h-8 w-8 place-items-center rounded-md text-white/60 transition hover:bg-white/10 hover:text-white"
+        className={`${icon} ml-0.5`}
         title="로그아웃"
         type="button"
         onClick={logout}
       >
-        <LogOut size={14} />
+        <LogOut size={16} />
       </button>
     </div>
   );
