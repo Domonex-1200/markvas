@@ -1,0 +1,9 @@
+# /opt/markvas/.env  (EC2 서버에 이 파일을 직접 작성하세요)
+# 이 파일은 git에 커밋하지 마세요
+
+DB_USERNAME=markvas
+DB_PASSWORD=your-rds-password-here
+JWT_ACCESS_SECRET=your-64-char-random-secret-here
+JWT_REFRESH_SECRET=another-64-char-random-secret-here
+CORS_ORIGINS=https://your-cloudfront-domain.cloudfront.net,https://yourdomain.com
+SEED_DATA=false

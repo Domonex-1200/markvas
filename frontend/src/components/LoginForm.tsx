@@ -95,7 +95,7 @@ export function LoginForm(): JSX.Element {
 
         <p className="mt-5 text-center text-sm text-slate-500">
           계정이 없나요?{" "}
-          <Link className="font-bold text-blue-600 hover:underline" to="/register">
+          <Link className="font-bold text-blue-600 hover:underline" to={next !== "/" ? `/register?next=${encodeURIComponent(next)}` : "/register"}>
             회원가입
           </Link>
         </p>

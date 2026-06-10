@@ -204,7 +204,7 @@ export function RegisterForm(): JSX.Element {
 
         <p className="mt-5 text-center text-sm text-slate-500">
           이미 계정이 있나요?{" "}
-          <Link className="font-bold text-blue-600 hover:underline" to="/login">
+          <Link className="font-bold text-blue-600 hover:underline" to={next !== "/" ? `/login?next=${encodeURIComponent(next)}` : "/login"}>
             로그인
           </Link>
         </p>
