@@ -32,8 +32,8 @@ const navItems: Array<{
   {
     label: "라이브러리",
     dropdown: [
-      { label: "내 라이브러리", href: "/library", description: "설치한 에셋 모음" },
-      { label: "찜한 에셋", href: "/wishlist", description: "나중에 설치할 에셋" }
+      { label: "내 라이브러리", href: "/library", description: "설치한 에셋 모음", requireAuth: true },
+      { label: "찜한 에셋", href: "/wishlist", description: "나중에 설치할 에셋", requireAuth: true }
     ]
   }
 ];
@@ -110,13 +110,8 @@ export function SiteHeader(): JSX.Element {
                           className="flex w-full flex-col rounded-lg px-3.5 py-2.5 text-left transition hover:bg-slate-50"
                           onClick={() => handleNavClick(d)}
                         >
-                          <span className="flex items-center gap-1.5 text-[13px] font-semibold text-slate-900">
+                          <span className="text-[13px] font-semibold text-slate-900">
                             {d.label}
-                            {d.requireAuth && (
-                              <span className="rounded bg-blue-100 px-1.5 py-0.5 text-[10px] font-bold text-blue-600">
-                                로그인 필요
-                              </span>
-                            )}
                           </span>
                           <span className="mt-0.5 text-xs text-slate-400">{d.description}</span>
                         </button>
