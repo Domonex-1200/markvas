@@ -61,7 +61,7 @@ export function AuthStatus(): JSX.Element {
   const icon = "grid h-8 w-8 place-items-center rounded-md text-white/60 transition hover:bg-white/10 hover:text-white";
 
   // 닉네임/이메일 첫 글자로 아바타
-  const avatarChar = (user.nickname ?? user.email)[0].toUpperCase();
+  const avatarChar = ((user.nickname ?? user.email) || "?")[0].toUpperCase();
 
   return (
     <div className="flex items-center gap-0.5">

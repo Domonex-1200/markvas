@@ -8,4 +8,5 @@ import java.util.Optional;
 public interface UserAssetRepository extends JpaRepository<UserAsset, String> {
     List<UserAsset> findByUserIdOrderByInstalledAtDesc(String userId);
     Optional<UserAsset> findByUserIdAndAssetId(String userId, String assetId);
+    void deleteByUserIdAndAssetId(String userId, String assetId);
 }

@@ -66,6 +66,8 @@ export interface UserProfile {
   gender?: Gender;
   profilePictureUrl?: string;
   createdAt: string;
+  active: boolean;
+  deactivatedAt?: string;
 }
 
 export interface DeveloperApplication {

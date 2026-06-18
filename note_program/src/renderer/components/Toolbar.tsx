@@ -1,22 +1,31 @@
 import type { MarkdownDocument } from "@markdown-canvas/shared";
-import { FileJson2, FileType2, History, Network, Palette, PanelsTopLeft, Pin, Plug, Settings2, Trash2 } from "lucide-react";
+import { FileJson2, FileType2, History, LogIn, LogOut, Network, Package, PanelsTopLeft, Pin, Plug, RefreshCcw, Settings2, Trash2 } from "lucide-react";
+
+interface AuthUser {
+  id: string;
+  email: string;
+  nickname: string | null;
+  role: string;
+}
 
 interface ToolbarProps {
   title: string;
   document: MarkdownDocument | null;
   saveStatus: "idle" | "dirty" | "saving" | "saved" | "error";
   isPinned: boolean;
-  themeCss: string;
-  onThemeChange: (css: string) => void;
+  authUser: AuthUser | null;
   onSyncAssets: () => Promise<void>;
   onManageTemplates: () => Promise<void>;
   onManagePlugins: () => Promise<void>;
+  onManageAssets: () => void;
   onOpenTrash: () => Promise<void>;
   onTogglePin: () => void;
   onExportPdf: () => Promise<void>;
   onManageSettings: () => void;
   onOpenBackup: () => void;
   onOpenGraph: () => void;
+  onOpenLogin: () => void;
+  onLogout: () => Promise<void>;
   canManageTemplates: boolean;
 }
 
@@ -25,17 +34,19 @@ export function Toolbar({
   document,
   saveStatus,
   isPinned,
-  themeCss,
-  onThemeChange,
+  authUser,
   onSyncAssets,
   onManageTemplates,
   onManagePlugins,
+  onManageAssets,
   onOpenTrash,
   onTogglePin,
   onExportPdf,
   onManageSettings,
   onOpenBackup,
   onOpenGraph,
+  onOpenLogin,
+  onLogout,
   canManageTemplates
 }: ToolbarProps): JSX.Element {
   return (
@@ -60,21 +71,40 @@ export function Toolbar({
       <button className="icon-button" title="플러그인 관리" onClick={onManagePlugins}>
         <Plug size={18} />
       </button>
+      <button className="icon-button" title="에셋 관리" onClick={onManageAssets}>
+        <Package size={18} />
+      </button>
       <button className="icon-button" title="휴지통" onClick={onOpenTrash} disabled={!canManageTemplates}>
         <Trash2 size={18} />
       </button>
-      <label className="icon-button cursor-pointer" title="테마 CSS 불러오기">
-        <Palette size={18} />
-        <textarea
-          className="sr-only"
-          aria-label="테마 CSS"
-          value={themeCss}
-          onChange={(event) => onThemeChange(event.target.value)}
-        />
-      </label>
-      <button className="icon-button" title="에셋 동기화" onClick={onSyncAssets}>
-        <FileJson2 size={18} />
-      </button>
+      {authUser ? (
+        <>
+          <button className="icon-button" title="에셋 동기화" onClick={onSyncAssets}>
+            <RefreshCcw size={18} />
+          </button>
+          <div className="flex items-center gap-1.5 rounded border border-line bg-stone-50 px-2 py-1">
+            <div className="grid h-6 w-6 place-items-center rounded-full bg-accent text-xs font-bold text-white">
+              {(authUser.nickname ?? authUser.email).slice(0, 1).toUpperCase()}
+            </div>
+            <span className="max-w-24 truncate text-xs text-slate-600" title={authUser.email}>
+              {authUser.nickname ?? authUser.email}
+            </span>
+            <button className="icon-button h-5 w-5" title="로그아웃" onClick={() => void onLogout()}>
+              <LogOut size={14} />
+            </button>
+          </div>
+        </>
+      ) : (
+        <>
+          <button className="icon-button" title="에셋 동기화 (로그인 필요)" onClick={onSyncAssets}>
+            <FileJson2 size={18} />
+          </button>
+          <button className="flex items-center gap-1.5 rounded border border-accent px-2 py-1 text-xs font-semibold text-accent transition hover:bg-accent hover:text-white" title="로그인" onClick={onOpenLogin}>
+            <LogIn size={14} />
+            로그인
+          </button>
+        </>
+      )}
       <button className="icon-button" title="워크스페이스 설정" onClick={onManageSettings}>
         <Settings2 size={18} />
       </button>

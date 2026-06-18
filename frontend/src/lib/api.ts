@@ -21,6 +21,71 @@ export const api = axios.create({
   timeout: 8000,
 });
 
+// ── 토큰 자동 갱신 인터셉터 ───────────────────────────────────────────────
+let isRefreshing = false;
+let refreshQueue: Array<(token: string) => void> = [];
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const original = error.config;
+
+    // refresh 요청 자체가 실패하거나 이미 재시도한 요청이면 로그아웃
+    if (error.response?.status !== 401 || original._retry || original.url?.includes("/auth/refresh")) {
+      return Promise.reject(error);
+    }
+
+    const refreshToken = window.localStorage.getItem("refreshToken");
+    if (!refreshToken) {
+      logout();
+      return Promise.reject(error);
+    }
+
+    if (isRefreshing) {
+      // 이미 갱신 중이면 새 토큰이 발급될 때까지 대기
+      return new Promise<string>((resolve) => {
+        refreshQueue.push(resolve);
+      }).then((newToken) => {
+        original.headers["Authorization"] = `Bearer ${newToken}`;
+        return api(original);
+      });
+    }
+
+    original._retry = true;
+    isRefreshing = true;
+
+    try {
+      const res = await axios.post<{ accessToken: string; refreshToken: string }>(
+        `${api.defaults.baseURL}/auth/refresh`,
+        { refreshToken }
+      );
+      const { accessToken, refreshToken: newRefresh } = res.data;
+      window.localStorage.setItem("accessToken", accessToken);
+      window.localStorage.setItem("refreshToken", newRefresh);
+
+      api.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
+      original.headers["Authorization"] = `Bearer ${accessToken}`;
+
+      refreshQueue.forEach((cb) => cb(accessToken));
+      refreshQueue = [];
+
+      return api(original);
+    } catch {
+      logout();
+      return Promise.reject(error);
+    } finally {
+      isRefreshing = false;
+    }
+  }
+);
+
+function logout(): void {
+  ["accessToken", "refreshToken", "role", "userEmail", "nickname"].forEach((k) =>
+    window.localStorage.removeItem(k)
+  );
+  window.location.href = "/login";
+}
+
 // ── 에셋 ──────────────────────────────────────────────────────────────────
 export async function getAssets(): Promise<StoreAsset[]> {
   return (await api.get<StoreAsset[]>("/assets")).data;
@@ -154,9 +219,35 @@ export async function getAllUsers(accessToken: string): Promise<UserProfile[]> {
   return (await api.get<UserProfile[]>("/users", auth(accessToken))).data;
 }
 
+export async function changeUserRole(userId: string, role: string, accessToken: string): Promise<UserProfile> {
+  return (await api.put<UserProfile>(`/users/${userId}/role`, { role }, auth(accessToken))).data;
+}
+
+export async function setUserActive(userId: string, active: boolean, accessToken: string): Promise<UserProfile> {
+  return (await api.put<UserProfile>(`/users/${userId}/active`, { active }, auth(accessToken))).data;
+}
+
+export interface AdminStats {
+  totalUsers: number;
+  developers: number;
+  admins: number;
+  totalAssets: number;
+  publishedAssets: number;
+  inReviewAssets: number;
+  pendingApplications: number;
+}
+
+export async function getAdminStats(accessToken: string): Promise<AdminStats> {
+  return (await api.get<AdminStats>("/users/admin/stats", auth(accessToken))).data;
+}
+
 // ── 설치/라이브러리 ────────────────────────────────────────────────────────
 export async function installAsset(assetId: string, accessToken: string): Promise<void> {
   await api.post(`/assets/${assetId}/install`, undefined, auth(accessToken));
+}
+
+export async function uninstallAsset(assetId: string, accessToken: string): Promise<void> {
+  await api.delete(`/assets/${assetId}/install`, auth(accessToken));
 }
 
 export async function getInstalledAssets(accessToken: string): Promise<InstalledAsset[]> {
@@ -207,6 +298,40 @@ export async function getLatestAppRelease(
   channel: AppReleaseChannel = "stable"
 ): Promise<AppRelease> {
   return (await api.get<AppRelease>("/app/releases/latest", { params: { platform, channel } })).data;
+}
+
+export interface CreateReleasePayload {
+  version: string;
+  platform: AppReleasePlatform;
+  channel: AppReleaseChannel;
+  downloadUrl: string;
+  checksum: string;
+  signature?: string;
+  releaseNotes: string;
+}
+
+export async function createAppRelease(payload: CreateReleasePayload, accessToken: string): Promise<AppRelease> {
+  return (await api.post<AppRelease>("/app/releases", payload, auth(accessToken))).data;
+}
+
+// ── 파일 업로드 ───────────────────────────────────────────────────────────────
+export async function presignUpload(
+  folder: string,
+  filename: string,
+  contentType: string,
+  accessToken: string
+): Promise<{ uploadUrl: string; publicUrl: string; key: string }> {
+  return (
+    await api.post("/upload/presign", { folder, filename, contentType }, auth(accessToken))
+  ).data;
+}
+
+export async function uploadFileToS3(uploadUrl: string, file: File): Promise<void> {
+  await fetch(uploadUrl, {
+    method: "PUT",
+    headers: { "Content-Type": file.type },
+    body: file,
+  });
 }
 
 // ── 헬퍼 ──────────────────────────────────────────────────────────────────

@@ -10,4 +10,5 @@ public interface DeveloperApplicationRepository extends JpaRepository<DeveloperA
     List<DeveloperApplication> findByStatusOrderByAppliedAtDesc(DeveloperApplication.ApplicationStatus status);
     Optional<DeveloperApplication> findByUserIdAndStatus(String userId, DeveloperApplication.ApplicationStatus status);
     boolean existsByUserIdAndStatus(String userId, DeveloperApplication.ApplicationStatus status);
+    long countByStatus(DeveloperApplication.ApplicationStatus status);
 }

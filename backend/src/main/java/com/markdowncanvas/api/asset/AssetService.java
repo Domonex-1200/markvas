@@ -35,7 +35,6 @@ public class AssetService {
     public void seed() {
         if (!seedData) return;
 
-        // @UuidGenerator 가 setId() 를 무시하므로 findByEmail 로 중복 체크
         User systemUser = users.findByEmail(SYSTEM_EMAIL).orElseGet(() -> {
             User system = new User();
             system.setEmail(SYSTEM_EMAIL);
@@ -44,35 +43,70 @@ public class AssetService {
             return users.save(system);
         });
 
+        String themeMetadata = """
+                {"version":"1.0.0","description":"문서 편집에 최적화된 차분하고 깔끔한 에디터 테마입니다.",\
+                "tokens":{"editorCss":\
+                ".prose-canvas{font-family:Georgia,serif;color:#1c2430;background:#f8f7f3;line-height:1.8;}\
+                .prose-canvas h1,.prose-canvas h2,.prose-canvas h3{color:#2b7a78;font-weight:700;margin-top:1.5rem;}\
+                .prose-canvas h1{font-size:1.8rem;border-bottom:2px solid #2b7a78;padding-bottom:0.4rem;}\
+                .prose-canvas h2{font-size:1.4rem;}\
+                .prose-canvas a{color:#2b7a78;text-decoration:underline;}\
+                .prose-canvas blockquote{border-left:4px solid #2b7a78;padding-left:1rem;color:#555;font-style:italic;margin:1rem 0;background:#f0f5f5;border-radius:0 4px 4px 0;}\
+                .prose-canvas code{background:#e8e7e3;padding:2px 6px;border-radius:3px;font-size:0.88em;font-family:monospace;}\
+                .prose-canvas pre{background:#e8e7e3;padding:1rem;border-radius:6px;overflow-x:auto;}\
+                .prose-canvas hr{border:none;border-top:2px solid #2b7a78;opacity:0.25;margin:2rem 0;}\
+                .prose-canvas strong{color:#1c2430;}\
+                .prose-canvas table{border-collapse:collapse;width:100%;}\
+                .prose-canvas th{background:#2b7a78;color:#fff;padding:0.5rem 1rem;text-align:left;}\
+                .prose-canvas td{border:1px solid #d0cec9;padding:0.5rem 1rem;}"}}
+                """.replace("\n", "");
+
+        String templateMetadata = """
+                {"version":"1.0.0","description":"결정 배경, 선택지, 결과를 추적하는 의사결정 기록 템플릿입니다.",\
+                "template":{"id":"decision-log","title":"Decision Log Template",\
+                "content":"# 의사결정 기록\\n\\n**날짜**: \\n**작성자**: \\n**상태**: 검토 중\\n\\n---\\n\\n## 배경\\n\\n> 이 결정이 필요하게 된 맥락과 이유를 작성하세요.\\n\\n## 선택지\\n\\n### 선택지 1\\n- **장점**: \\n- **단점**: \\n\\n### 선택지 2\\n- **장점**: \\n- **단점**: \\n\\n## 결정\\n\\n> 최종 선택과 그 이유를 작성하세요.\\n\\n## 결과\\n\\n> 이 결정의 결과를 나중에 기록하세요."}}
+                """.replace("\n", "");
+
+        String pluginCode = "(function(){var d=input.document;if(!d)return{output:'열린 노트가 없습니다.'};var c=d.content||'';var i,ch=0,ln=1;for(i=0;i<c.length;i++){var x=c.charCodeAt(i);if(x===10)ln++;if(x!==32&&x!==9&&x!==10&&x!==13)ch++;}var m=Math.ceil(ch/500)||1;var msg='글자 '+ch+'자 · '+ln+'줄 · 읽기 약 '+m+'분';return{output:msg,action:{type:'notice',message:msg}};}())";
+        String pluginMetadata = "{\"version\":\"1.0.0\",\"description\":\"현재 노트의 글자 수, 줄 수, 예상 읽기 시간을 알려줍니다.\","
+                + "\"plugin\":{\"id\":\"word-count-reporter\",\"title\":\"Word Count Reporter\",\"version\":\"1.0.0\","
+                + "\"entryFile\":\"plugin.js\",\"permissions\":[\"note:read\"],"
+                + "\"commands\":[{\"id\":\"report\",\"title\":\"글자 수 확인\",\"description\":\"현재 노트의 글자, 줄 수와 읽기 시간을 알려줍니다.\"}],"
+                + "\"code\":\"" + pluginCode.replace("\\", "\\\\").replace("\"", "\\\"") + "\"}}";
+
         seedAsset(systemUser.getId(), "Editorial Focus Theme", AssetType.THEME,
-                "/assets/demo-editorial-theme/theme.css",
-                "{\"version\":\"1.0.0\",\"description\":\"문서 미리보기와 PDF 출력에 사용할 수 있는 차분한 편집 테마입니다.\",\"tokens\":{\"colors\":{\"paper\":\"#f8f7f3\",\"accent\":\"#2b7a78\",\"ink\":\"#1c2430\"}}}");
+                "/assets/demo-editorial-theme/theme.css", themeMetadata);
 
         seedAsset(systemUser.getId(), "Decision Log Template", AssetType.TEMPLATE,
-                "/assets/demo-decision-log/template.md",
-                "{\"version\":\"1.0.0\",\"description\":\"결정 배경, 선택지, 결과를 추적하는 의사결정 기록 템플릿입니다.\"}");
+                "/assets/demo-decision-log/template.md", templateMetadata);
 
         seedAsset(systemUser.getId(), "Word Count Reporter", AssetType.PLUGIN,
-                "/assets/demo-word-count/plugin.js",
-                "{\"version\":\"1.0.0\",\"description\":\"현재 노트의 단어 수와 글자 수를 커맨드 팔레트에서 확인하는 샘플 플러그인입니다.\"}");
+                "/assets/demo-word-count/plugin.js", pluginMetadata);
     }
 
     private void seedAsset(String authorId, String title, AssetType type, String filePath, String metadataJson) {
-        if (assets.findByTitle(title).isPresent()) return;
-        Asset asset = new Asset();
-        asset.setTitle(title);
-        asset.setType(type);
-        asset.setFilePath(filePath);
-        asset.setMetadata(metadataJson);
-        asset.setAuthorId(authorId);
-        asset.setStatus(AssetStatus.PUBLISHED);
-        Asset saved = assets.save(asset);
+        assets.findByTitle(title).ifPresentOrElse(
+            existing -> {
+                existing.setMetadata(metadataJson);
+                assets.save(existing);
+            },
+            () -> {
+                Asset asset = new Asset();
+                asset.setTitle(title);
+                asset.setType(type);
+                asset.setFilePath(filePath);
+                asset.setMetadata(metadataJson);
+                asset.setAuthorId(authorId);
+                asset.setStatus(AssetStatus.PUBLISHED);
+                Asset saved = assets.save(asset);
 
-        AssetVersion ver = new AssetVersion();
-        ver.setAsset(saved);
-        ver.setVersion("1.0.0");
-        ver.setFilePath(filePath);
-        assetVersions.save(ver);
+                AssetVersion ver = new AssetVersion();
+                ver.setAsset(saved);
+                ver.setVersion("1.0.0");
+                ver.setFilePath(filePath);
+                assetVersions.save(ver);
+            }
+        );
     }
 
     public List<AssetDto.AssetResponse> list() {
@@ -171,6 +205,11 @@ public class AssetService {
             ua.setAsset(asset);
             userAssets.save(ua);
         }
+    }
+
+    @Transactional
+    public void uninstall(String userId, String assetId) {
+        userAssets.deleteByUserIdAndAssetId(userId, assetId);
     }
 
     public List<AssetDto.InstalledAssetResponse> installedByUser(String userId) {

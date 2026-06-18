@@ -10,4 +10,5 @@ public interface AssetRepository extends JpaRepository<Asset, String> {
     List<Asset> findAllByOrderByCreatedAtDesc();
     Optional<Asset> findByTitle(String title);
     List<Asset> findByAuthorIdOrderByCreatedAtDesc(String authorId);
+    long countByStatus(AssetStatus status);
 }

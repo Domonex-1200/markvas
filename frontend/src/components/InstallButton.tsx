@@ -1,42 +1,60 @@
-
 import { useEffect, useState } from "react";
-import { Download } from "lucide-react";
-import { getInstalledAssets, installAsset } from "../lib/api";
+import { Download, X } from "lucide-react";
+import { getInstalledAssets, installAsset, uninstallAsset } from "../lib/api";
 
 export function InstallButton({ assetId }: { assetId: string }): JSX.Element {
-  const [status, setStatus] = useState<"idle" | "busy" | "done" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "busy" | "registered" | "error">("idle");
 
   useEffect(() => {
     const token = window.localStorage.getItem("accessToken");
     if (!token) return;
-
     getInstalledAssets(token)
       .then((items) => {
-        if (items.some((item) => item.asset.id === assetId)) setStatus("done");
+        if (items.some((item) => item.asset.id === assetId)) setStatus("registered");
       })
       .catch(() => undefined);
   }, [assetId]);
 
-  async function install(): Promise<void> {
+  async function register(): Promise<void> {
     const token = window.localStorage.getItem("accessToken");
-    if (!token) {
-      window.location.href = "/login";
-      return;
-    }
-
+    if (!token) { window.location.href = "/login"; return; }
     setStatus("busy");
     try {
       await installAsset(assetId, token);
-      setStatus("done");
+      setStatus("registered");
     } catch {
       setStatus("error");
     }
   }
 
+  async function unregister(): Promise<void> {
+    const token = window.localStorage.getItem("accessToken");
+    if (!token) return;
+    setStatus("busy");
+    try {
+      await uninstallAsset(assetId, token);
+      setStatus("idle");
+    } catch {
+      setStatus("error");
+    }
+  }
+
+  if (status === "registered") {
+    return (
+      <button
+        className="button-secondary flex items-center gap-2 text-slate-500 hover:border-red-300 hover:text-red-600"
+        onClick={() => void unregister()}
+      >
+        <X size={16} />
+        등록 해제
+      </button>
+    );
+  }
+
   return (
-    <button className="button" onClick={install} disabled={status === "busy" || status === "done"}>
+    <button className="button flex items-center gap-2" onClick={() => void register()} disabled={status === "busy"}>
       <Download size={16} />
-      {status === "done" ? "설치됨" : status === "error" ? "설치 실패" : status === "busy" ? "설치 중" : "무료 설치"}
+      {status === "error" ? "등록 실패" : status === "busy" ? "처리 중…" : "등록하기"}
     </button>
   );
 }

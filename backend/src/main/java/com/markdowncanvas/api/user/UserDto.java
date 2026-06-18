@@ -54,6 +54,22 @@ public class UserDto {
     }
 
     @Data
+    public static class ChangeRoleRequest {
+        private String role;
+    }
+
+    @Data
+    public static class AdminStats {
+        private long totalUsers;
+        private long developers;
+        private long admins;
+        private long totalAssets;
+        private long publishedAssets;
+        private long inReviewAssets;
+        private long pendingApplications;
+    }
+
+    @Data
     public static class DeveloperApplicationResponse {
         private String id;
         private String userId;

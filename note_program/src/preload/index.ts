@@ -11,6 +11,20 @@ import type {
   TrashEntry
 } from "@markdown-canvas/shared";
 
+export interface AuthUser {
+  id: string;
+  email: string;
+  nickname: string | null;
+  role: string;
+  profilePictureUrl: string | null;
+}
+
+export interface StoreAuthState {
+  accessToken: string;
+  refreshToken: string;
+  user: AuthUser;
+}
+
 const api = {
   pickWorkspace: (): Promise<string | null> => ipcRenderer.invoke("workspace:pick"),
   readWorkspaceTree: (workspacePath: string): Promise<FileTreeNode> => ipcRenderer.invoke("workspace:tree", workspacePath),
@@ -62,6 +76,12 @@ const api = {
   storeGetAll: (): Promise<Record<string, unknown>> => ipcRenderer.invoke("store:get-all"),
   storeSet: (key: string, value: unknown): Promise<void> => ipcRenderer.invoke("store:set", key, value),
   storeDelete: (key: string): Promise<void> => ipcRenderer.invoke("store:delete", key),
+  uninstallAssetLocal: (assetId: string): Promise<void> => ipcRenderer.invoke("assets:uninstall-local", assetId),
+  uninstallAssetRemote: (assetId: string, accessToken: string): Promise<void> => ipcRenderer.invoke("assets:uninstall-remote", assetId, accessToken),
+  // 인증
+  login: (email: string, password: string): Promise<StoreAuthState> => ipcRenderer.invoke("auth:login", email, password),
+  logout: (): Promise<void> => ipcRenderer.invoke("auth:logout"),
+  getAuth: (): Promise<StoreAuthState | null> => ipcRenderer.invoke("auth:get"),
   // PPTX
   showPptxSaveDialog: (defaultFilename: string): Promise<string | null> =>
     ipcRenderer.invoke("export:pptx-dialog", defaultFilename),

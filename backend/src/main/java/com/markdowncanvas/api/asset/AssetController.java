@@ -120,6 +120,13 @@ public class AssetController {
         assetService.install(principal.userId(), id);
     }
 
+    @DeleteMapping("/{id}/install")
+    @PreAuthorize("isAuthenticated()")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void uninstall(@AuthenticationPrincipal JwtPrincipal principal, @PathVariable String id) {
+        assetService.uninstall(principal.userId(), id);
+    }
+
     @PostMapping("/{id}/wishlist")
     @PreAuthorize("isAuthenticated()")
     @ResponseStatus(HttpStatus.NO_CONTENT)

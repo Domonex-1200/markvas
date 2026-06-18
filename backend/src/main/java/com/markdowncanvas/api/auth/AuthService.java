@@ -43,6 +43,9 @@ public class AuthService {
         if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials.");
         }
+        if (!user.isActive()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Account is deactivated.");
+        }
         return buildAuthResponse(user);
     }
 
@@ -59,6 +62,9 @@ public class AuthService {
         if (user.getRefreshTokenHash() == null ||
                 !passwordEncoder.matches(refreshToken, user.getRefreshTokenHash())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token.");
+        }
+        if (!user.isActive()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Account is deactivated.");
         }
         return issueTokens(user);
     }

@@ -1,8 +1,9 @@
 
 import { useState } from "react";
 import type { AssetMetadata, AssetType } from "../types";
-import { Code2, FileText, Image, Save, SwatchBook } from "lucide-react";
+import { Code2, FileText, Save, SwatchBook } from "lucide-react";
 import { createAsset, submitAssetForReview } from "../lib/api";
+import { ImageUploader } from "./ImageUploader";
 
 const DEFAULT_PLUGIN_CODE = "return function(input) { return `현재 명령: ${input.commandId}`; };";
 const DEFAULT_THEME_CSS = ".prose-canvas h1 { color: #2563eb; }";
@@ -114,10 +115,14 @@ export function AssetCreateForm(): JSX.Element {
           <textarea className="mt-2 h-28 w-full rounded-md border border-slate-200 p-3 font-normal outline-none focus:border-blue-500" value={description} onChange={(event) => setDescription(event.target.value)} />
         </label>
 
-        <div className="grid gap-4 md:grid-cols-2">
-          <TextField label="에셋 파일 경로" value={filePath} onChange={setFilePath} placeholder="/assets/custom/asset.json" />
-          <TextField label="대표 이미지 URL" value={coverImageUrl} onChange={setCoverImageUrl} placeholder="https://..." icon={<Image size={15} />} />
-        </div>
+        <TextField label="에셋 파일 경로" value={filePath} onChange={setFilePath} placeholder="/assets/custom/asset.json" />
+
+        <ImageUploader
+          value={coverImageUrl}
+          onChange={setCoverImageUrl}
+          folder="assets/covers"
+          label="대표 이미지"
+        />
 
         {type === "THEME" && (
           <label className="text-sm font-bold">

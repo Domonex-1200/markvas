@@ -1,5 +1,7 @@
 package com.markdowncanvas.api.user;
 
+import com.markdowncanvas.api.asset.AssetRepository;
+import com.markdowncanvas.api.asset.AssetStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,7 @@ public class UserService {
 
     private final UserRepository users;
     private final DeveloperApplicationRepository devApps;
+    private final AssetRepository assets;
 
     // ── 프로필 조회 ───────────────────────────────────────────────────────
     public UserDto.ProfileResponse getProfile(String userId) {
@@ -107,6 +110,44 @@ public class UserService {
     public List<UserDto.ProfileResponse> getAllUsers() {
         return users.findAll().stream()
                 .map(UserDto.ProfileResponse::from).toList();
+    }
+
+    // ── 관리자: 비활성화 / 활성화 ────────────────────────────────────────
+    @Transactional
+    public UserDto.ProfileResponse setActive(String targetUserId, boolean active) {
+        User user = getUser(targetUserId);
+        if (user.getRole() == UserRole.ADMIN) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot deactivate an admin account.");
+        }
+        user.setActive(active);
+        user.setDeactivatedAt(active ? null : Instant.now());
+        if (!active) user.setRefreshTokenHash(null); // 기존 세션 무효화
+        return UserDto.ProfileResponse.from(users.save(user));
+    }
+
+    // ── 관리자: 역할 변경 ─────────────────────────────────────────────────
+    @Transactional
+    public UserDto.ProfileResponse changeRole(String targetUserId, String newRole) {
+        User user = getUser(targetUserId);
+        try {
+            user.setRole(UserRole.valueOf(newRole));
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid role: " + newRole);
+        }
+        return UserDto.ProfileResponse.from(users.save(user));
+    }
+
+    // ── 관리자: 통계 ──────────────────────────────────────────────────────
+    public UserDto.AdminStats getStats() {
+        UserDto.AdminStats stats = new UserDto.AdminStats();
+        stats.setTotalUsers(users.count());
+        stats.setDevelopers(users.countByRole(UserRole.DEVELOPER));
+        stats.setAdmins(users.countByRole(UserRole.ADMIN));
+        stats.setTotalAssets(assets.count());
+        stats.setPublishedAssets(assets.countByStatus(AssetStatus.PUBLISHED));
+        stats.setInReviewAssets(assets.countByStatus(AssetStatus.IN_REVIEW));
+        stats.setPendingApplications(devApps.countByStatus(DeveloperApplication.ApplicationStatus.PENDING));
+        return stats;
     }
 
     private User getUser(String userId) {

@@ -1,9 +1,9 @@
 import { app } from "electron";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { InstalledAsset } from "@markdown-canvas/shared";
 
-const API_BASE_URL = process.env.ASSET_STORE_API_URL ?? "http://localhost:3001";
+import { API_BASE_URL } from "./auth";
 const CURRENT_THEME_FILE = "current-theme.css";
 const TEMPLATE_ROOT = "templates";
 
@@ -59,6 +59,11 @@ export async function installAssetsFromStore(accessToken: string): Promise<Insta
   }
 
   return installedAssets;
+}
+
+export async function uninstallLocalAsset(assetId: string): Promise<void> {
+  const assetDir = path.join(app.getPath("userData"), "assets", assetId);
+  await rm(assetDir, { recursive: true, force: true });
 }
 
 export async function readCurrentThemeCss(): Promise<string> {

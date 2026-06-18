@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { SiteHeader } from "../components/SiteHeader";
 import { getMyProfile, updateMyProfile, applyForDeveloper, getMyDeveloperApplication } from "../lib/api";
+import { ImageUploader } from "../components/ImageUploader";
 import type { UserProfile, DeveloperApplication } from "../types";
 
 export default function MePage(): JSX.Element {
@@ -140,9 +141,14 @@ export default function MePage(): JSX.Element {
                 </select>
               </Field>
             </div>
-            <Field label="프로필 이미지 URL">
-              <input className="field-input" value={profilePictureUrl} onChange={(e) => setProfilePictureUrl(e.target.value)} placeholder="https://..." />
-            </Field>
+            <ImageUploader
+              value={profilePictureUrl}
+              onChange={setProfilePictureUrl}
+              folder="uploads/profiles"
+              label="프로필 사진"
+              shape="circle"
+              maxMb={5}
+            />
             {saveMsg && (
               <p className={`text-sm font-semibold ${saveMsg.includes("실패") ? "text-red-500" : "text-blue-600"}`}>
                 {saveMsg}

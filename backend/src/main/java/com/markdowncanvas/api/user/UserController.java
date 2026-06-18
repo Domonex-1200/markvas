@@ -69,4 +69,28 @@ public class UserController {
                                                                   @RequestBody UserDto.ReviewApplicationRequest dto) {
         return userService.reviewApplication(principal.userId(), appId, dto.isApprove(), dto.getNote());
     }
+
+    // ── 관리자: 비활성화 / 활성화 ─────────────────────────────────────────
+    @PutMapping("/{id}/active")
+    @PreAuthorize("hasRole('ADMIN')")
+    public UserDto.ProfileResponse setActive(@PathVariable String id,
+                                             @RequestBody java.util.Map<String, Boolean> body) {
+        boolean active = Boolean.TRUE.equals(body.get("active"));
+        return userService.setActive(id, active);
+    }
+
+    // ── 관리자: 역할 변경 ──────────────────────────────────────────────────
+    @PutMapping("/{id}/role")
+    @PreAuthorize("hasRole('ADMIN')")
+    public UserDto.ProfileResponse changeRole(@PathVariable String id,
+                                              @RequestBody UserDto.ChangeRoleRequest dto) {
+        return userService.changeRole(id, dto.getRole());
+    }
+
+    // ── 관리자: 통계 ───────────────────────────────────────────────────────
+    @GetMapping("/admin/stats")
+    @PreAuthorize("hasRole('ADMIN')")
+    public UserDto.AdminStats getStats() {
+        return userService.getStats();
+    }
 }

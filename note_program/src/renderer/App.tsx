@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import type { FileTreeNode, InstalledPlugin, MarkdownDocument, NoteTemplate, NoteTemplateInput, TrashEntry } from "@markdown-canvas/shared";
+import type { FileTreeNode, InstalledAsset, InstalledPlugin, MarkdownDocument, NoteTemplate, NoteTemplateInput, TrashEntry } from "@markdown-canvas/shared";
 import { FolderOpen, RefreshCcw, X } from "lucide-react";
 import { CommandPalette, type CommandPaletteItem } from "./components/CommandPalette";
 import { FileTree } from "./components/FileTree";
@@ -14,6 +14,9 @@ import { WorkspaceSearchPanel } from "./components/WorkspaceSearchPanel";
 import { TagManagerModal } from "./components/TagManagerModal";
 import { BackupRestoreModal } from "./components/BackupRestoreModal";
 import { GraphViewModal } from "./components/GraphViewModal";
+import { AssetManagerModal } from "./components/AssetManagerModal";
+import { LoginModal } from "./components/LoginModal";
+import type { StoreAuthState } from "../preload/index";
 import { renameTagInContent, removeTagFromContent } from "./lib/tag-utils";
 import { storageGet, storageSet, storageDelete, syncFromElectronStore } from "./lib/storage";
 import {
@@ -80,6 +83,12 @@ export default function App(): JSX.Element {
   const [isTagManagerOpen, setIsTagManagerOpen] = useState(false);
   const [isBackupOpen, setIsBackupOpen] = useState(false);
   const [isGraphOpen, setIsGraphOpen] = useState(false);
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [isAssetManagerOpen, setIsAssetManagerOpen] = useState(false);
+  const [authUser, setAuthUser] = useState<StoreAuthState["user"] | null>(null);
+  const [installedAssets, setInstalledAssets] = useState<InstalledAsset[]>([]);
+  const [localAssetIds, setLocalAssetIds] = useState<Set<string>>(new Set());
+  const [isSyncingAssets, setIsSyncingAssets] = useState(false);
 
   const [workspaceSettings, setWorkspaceSettings] = useState<WorkspaceSettings>(() => loadWorkspaceSettings());
   const [navigationState, setNavigationState] = useState<WorkspaceNavigationState>(EMPTY_NAVIGATION_STATE);
@@ -156,6 +165,15 @@ export default function App(): JSX.Element {
   // ── electron-store → localStorage 초기 동기화 ──
   useEffect(() => {
     void syncFromElectronStore();
+  }, []);
+
+  // ── 저장된 로그인 상태 복원 ──
+  useEffect(() => {
+    window.markdownCanvas?.getAuth?.()
+      .then((auth) => {
+        if (auth) setAuthUser(auth.user);
+      })
+      .catch(() => undefined);
   }, []);
 
   useEffect(() => {
@@ -818,7 +836,29 @@ export default function App(): JSX.Element {
   }
 
   async function syncAssets(): Promise<void> {
-    setDialog({ kind: "sync-assets", value: "" });
+    if (!authUser) {
+      setIsLoginOpen(true);
+      return;
+    }
+    const auth = await window.markdownCanvas.getAuth?.();
+    if (!auth) {
+      setIsLoginOpen(true);
+      return;
+    }
+    await syncAssetsWithToken(auth.accessToken);
+  }
+
+  async function handleLogin(auth: StoreAuthState): Promise<void> {
+    setAuthUser(auth.user);
+    setIsLoginOpen(false);
+    setNotice(`${auth.user.nickname ?? auth.user.email}님 로그인됨. 에셋 동기화 중…`);
+    await syncAssetsWithToken(auth.accessToken);
+  }
+
+  async function handleLogout(): Promise<void> {
+    await window.markdownCanvas.logout?.();
+    setAuthUser(null);
+    setNotice("로그아웃됐습니다.");
   }
 
   async function exportCurrentDocumentPdf(): Promise<void> {
@@ -898,20 +938,71 @@ export default function App(): JSX.Element {
     try {
       setError("");
       setNotice("");
-      const installedAssets = await window.markdownCanvas.syncAssets(token.trim());
-      const themeAsset = installedAssets.find((item) => item.asset.type === "THEME" && item.asset.metadata.tokens?.editorCss);
-
-      if (themeAsset?.asset.metadata.tokens?.editorCss) {
-        setThemeCss(themeAsset.asset.metadata.tokens.editorCss);
-      }
+      setIsSyncingAssets(true);
+      // 등록된 에셋 목록만 가져옴 (로컬 파일 설치는 사용자가 직접)
+      const registered = await window.markdownCanvas.syncAssets(token.trim());
+      setInstalledAssets(registered);
+      // 로컬에 실제로 설치된 에셋 ID 목록 갱신
+      setLocalAssetIds(new Set(registered.map((a) => a.asset.id)));
+      // 로컬에 이미 있는 테마 적용
+      const localCss = await window.markdownCanvas.getLocalThemeCss();
+      if (localCss) setThemeCss(localCss);
       if (workspacePath) await refreshTemplates(workspacePath);
       await refreshPlugins();
-
-      setNotice(`${installedAssets.length}개 에셋을 동기화했습니다.`);
+      setNotice(`${registered.length}개 에셋이 등록됨. 에셋 관리에서 설치하세요.`);
       setDialog({ kind: "none" });
     } catch (caught) {
       setError(toErrorMessage(caught));
+    } finally {
+      setIsSyncingAssets(false);
     }
+  }
+
+  async function installLocalAsset(item: InstalledAsset): Promise<void> {
+    try {
+      // 단일 에셋을 로컬에 설치 (syncAssets는 전체 목록용이므로 직접 처리)
+      const auth = await window.markdownCanvas.getAuth?.();
+      if (!auth) { setIsLoginOpen(true); return; }
+      // 전체 sync 후 해당 에셋 적용
+      const registered = await window.markdownCanvas.syncAssets(auth.accessToken);
+      setInstalledAssets(registered);
+      setLocalAssetIds(new Set(registered.map((a) => a.asset.id)));
+
+      if (item.asset.type === "THEME" && item.asset.metadata?.tokens?.editorCss) {
+        setThemeCss(item.asset.metadata.tokens.editorCss);
+      }
+      if (workspacePath) await refreshTemplates(workspacePath);
+      await refreshPlugins();
+      setNotice(`${item.asset.title} 설치됨.`);
+    } catch (caught) {
+      setError(toErrorMessage(caught));
+    }
+  }
+
+  async function deleteLocalAsset(assetId: string): Promise<void> {
+    try {
+      // 현재 적용 중인 테마를 삭제하면 CSS 초기화
+      const target = installedAssets.find((a) => a.asset.id === assetId);
+      if (target?.asset.type === "THEME") {
+        const assetCss = target.asset.metadata?.tokens?.editorCss ?? "";
+        if (assetCss && themeCss === assetCss) setThemeCss("");
+      }
+      await window.markdownCanvas.uninstallAssetLocal(assetId);
+      setLocalAssetIds((prev) => { const next = new Set(prev); next.delete(assetId); return next; });
+      if (workspacePath) await refreshTemplates(workspacePath);
+      await refreshPlugins();
+      setNotice("로컬 에셋을 삭제했습니다.");
+    } catch (caught) {
+      setError(toErrorMessage(caught));
+    }
+  }
+
+  function handleManageAssets(): void {
+    if (!authUser) {
+      setIsLoginOpen(true);
+      return;
+    }
+    setIsAssetManagerOpen(true);
   }
 
   return (
@@ -985,17 +1076,19 @@ export default function App(): JSX.Element {
           document={document}
           saveStatus={saveStatus}
           isPinned={isCurrentDocumentPinned}
-          themeCss={themeCss}
-          onThemeChange={setThemeCss}
+          authUser={authUser}
           onSyncAssets={syncAssets}
           onManageTemplates={openTemplateManager}
           onManagePlugins={openPluginManager}
+          onManageAssets={handleManageAssets}
           onOpenTrash={openTrash}
           onTogglePin={toggleCurrentDocumentPin}
           onExportPdf={exportCurrentDocumentPdf}
           onManageSettings={() => setIsSettingsOpen(true)}
           onOpenBackup={() => setIsBackupOpen(true)}
           onOpenGraph={() => setIsGraphOpen(true)}
+          onOpenLogin={() => setIsLoginOpen(true)}
+          onLogout={handleLogout}
           canManageTemplates={Boolean(workspacePath)}
         />
         <OpenDocumentBar
@@ -1098,6 +1191,31 @@ export default function App(): JSX.Element {
         activePath={document?.path}
         onClose={() => setIsGraphOpen(false)}
         onOpenNote={openFileByPath}
+      />
+
+      <LoginModal
+        isOpen={isLoginOpen}
+        onClose={() => setIsLoginOpen(false)}
+        onLogin={(auth) => void handleLogin(auth)}
+      />
+
+      <AssetManagerModal
+        isOpen={isAssetManagerOpen}
+        installedAssets={installedAssets}
+        localAssetIds={localAssetIds}
+        isLoading={isSyncingAssets}
+        onClose={() => setIsAssetManagerOpen(false)}
+        onInstallLocal={installLocalAsset}
+        onDeleteLocal={deleteLocalAsset}
+        onApplyTheme={setThemeCss}
+        onRunPluginCommand={(assetId, commandId) => {
+          const plugin = plugins.find((p) =>
+            p.id === assetId ||
+            installedAssets.some((a) => a.asset.id === assetId && a.asset.metadata?.plugin?.id === p.id)
+          );
+          if (plugin) return runPluginCommand(plugin, commandId);
+          return Promise.resolve();
+        }}
       />
 
       {dialog.kind !== "none" && dialog.kind !== "delete" && dialog.kind !== "delete-multiple" && (

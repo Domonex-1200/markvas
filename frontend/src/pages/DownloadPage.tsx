@@ -1,18 +1,33 @@
 import { useEffect, useState } from "react";
-import { Download, MonitorDown, ShieldCheck } from "lucide-react";
+import { ChevronDown, ChevronUp, Download, MonitorDown, ShieldCheck } from "lucide-react";
 import { SiteHeader } from "../components/SiteHeader";
 import { getAppReleases } from "../lib/api";
 import type { AppRelease } from "../types";
 
+const FALLBACK_RELEASE: AppRelease = {
+  id: "fallback",
+  platform: "windows",
+  channel: "stable",
+  version: "0.1.0",
+  downloadUrl: "https://d36v39m4b0nmuu.cloudfront.net/releases/MarkVas-Setup-0.1.0.exe",
+  releaseNotes: "MarkVas 첫 번째 공식 릴리즈입니다.",
+  checksum: "",
+  signature: undefined,
+  publishedAt: "2026-06-01T00:00:00Z",
+};
+
 export default function DownloadPage(): JSX.Element {
-  const [releases, setReleases] = useState<AppRelease[]>([]);
+  const [releases, setReleases] = useState<AppRelease[]>([FALLBACK_RELEASE]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [showHistory, setShowHistory] = useState(false);
 
   useEffect(() => {
     getAppReleases()
-      .then((data) => setReleases(data.filter((r) => r.platform === "windows")))
-      .catch(() => setError("릴리즈 정보를 불러오지 못했습니다. 서버 연결을 확인하세요."))
+      .then((data) => {
+        const filtered = data.filter((r) => r.platform === "windows").sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
+        if (filtered.length > 0) setReleases(filtered);
+      })
+      .catch(() => { /* fallback already set */ })
       .finally(() => setLoading(false));
   }, []);
 
@@ -32,48 +47,69 @@ export default function DownloadPage(): JSX.Element {
       </section>
 
       <section className="mx-auto grid max-w-6xl gap-4 px-6 py-8 md:grid-cols-2">
-        {loading && (
-          <div className="col-span-2 py-20 text-center text-slate-500">불러오는 중...</div>
-        )}
-        {error && (
-          <div className="col-span-2 rounded-lg border border-red-200 bg-red-50 px-6 py-10 text-center text-red-600">
-            <p className="font-bold">연결 오류</p>
-            <p className="mt-1 text-sm">{error}</p>
-          </div>
-        )}
-        {!loading && !error && releases.map((release) => (
-          <article className="surface-card p-6" key={release.id}>
-            <div className="mb-4 flex items-start justify-between gap-3">
-              <div>
-                <h2 className="text-xl font-black text-slate-950">Windows 설치 파일</h2>
-                <p className="mt-1 text-sm text-slate-500">v{release.version} · {release.channel}</p>
-              </div>
-              <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-black uppercase text-blue-700">windows</span>
-            </div>
-            <p className="min-h-20 text-sm leading-6 text-slate-700">{release.releaseNotes}</p>
-            <dl className="mt-4 space-y-2 text-xs text-slate-500">
-              <div>
-                <dt className="font-bold text-slate-700">Checksum</dt>
-                <dd className="mt-1 break-all rounded-md bg-slate-50 p-2 font-mono">{release.checksum}</dd>
-              </div>
-              {release.signature && (
-                <div>
-                  <dt className="font-bold text-slate-700">Signature</dt>
-                  <dd className="mt-1 break-all rounded-md bg-slate-50 p-2 font-mono">{release.signature}</dd>
+        {releases.length > 0 && (() => {
+          const [latest, ...older] = releases;
+          return (
+            <>
+              <article className="surface-card p-6" key={latest.id}>
+                <div className="mb-4 flex items-start justify-between gap-3">
+                  <div>
+                    <h2 className="text-xl font-black text-slate-950">Windows 설치 파일</h2>
+                    <p className="mt-1 text-sm text-slate-500">v{latest.version} · {latest.channel} · {new Date(latest.publishedAt).toLocaleDateString("ko-KR")}</p>
+                  </div>
+                  <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-black uppercase text-blue-700">최신</span>
+                </div>
+                <p className="min-h-10 text-sm leading-6 text-slate-700">{latest.releaseNotes}</p>
+                <dl className="mt-4 space-y-2 text-xs text-slate-500">
+                  <div>
+                    <dt className="font-bold text-slate-700">Checksum (SHA-256)</dt>
+                    <dd className="mt-1 break-all rounded-md bg-slate-50 p-2 font-mono">{latest.checksum}</dd>
+                  </div>
+                  {latest.signature && (
+                    <div>
+                      <dt className="font-bold text-slate-700">Signature</dt>
+                      <dd className="mt-1 break-all rounded-md bg-slate-50 p-2 font-mono">{latest.signature}</dd>
+                    </div>
+                  )}
+                </dl>
+                <a className="button mt-5 w-full" href={latest.downloadUrl}>
+                  <Download size={16} />
+                  Windows 다운로드 (v{latest.version})
+                </a>
+              </article>
+
+              {older.length > 0 && (
+                <div className="col-span-2">
+                  <button
+                    className="flex items-center gap-1.5 text-sm font-bold text-slate-500 hover:text-slate-800"
+                    onClick={() => setShowHistory((v) => !v)}
+                  >
+                    {showHistory ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+                    이전 버전 ({older.length})
+                  </button>
+                  {showHistory && (
+                    <div className="mt-3 space-y-3">
+                      {older.map((r) => (
+                        <article key={r.id} className="surface-card flex items-center justify-between gap-4 p-4">
+                          <div className="min-w-0">
+                            <p className="font-bold text-slate-800">v{r.version}</p>
+                            <p className="mt-0.5 text-xs text-slate-500">{new Date(r.publishedAt).toLocaleDateString("ko-KR")} · {r.channel}</p>
+                            <p className="mt-1 truncate text-sm text-slate-600">{r.releaseNotes}</p>
+                          </div>
+                          <a className="button-secondary shrink-0 text-sm" href={r.downloadUrl}>
+                            <Download size={14} />
+                            다운로드
+                          </a>
+                        </article>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
-            </dl>
-            <a className="button mt-5 w-full" href={release.downloadUrl}>
-              <Download size={16} />
-              Windows 다운로드
-            </a>
-          </article>
-        ))}
-        {!loading && !error && releases.length === 0 && (
-          <div className="col-span-2 py-20 text-center text-slate-500">등록된 릴리즈가 없습니다.</div>
-        )}
-
-        {!loading && !error && (
+            </>
+          );
+        })()}
+        {!loading && (
           <aside className="surface-card p-6">
             <div className="mb-3 flex items-center gap-2 text-sm font-black text-blue-700">
               <ShieldCheck size={16} />

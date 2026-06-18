@@ -28,7 +28,8 @@ import {
 protocol.registerSchemesAsPrivileged([
   { scheme: "mc-asset", privileges: { standard: true, secure: true, supportFetchAPI: true, corsEnabled: true } }
 ]);
-import { installAssetsFromStore, readCurrentThemeCss } from "./asset-sync";
+import { installAssetsFromStore, readCurrentThemeCss, uninstallLocalAsset } from "./asset-sync";
+import { loginWithCredentials, fetchMe, refreshAccessToken, toStoreAuthState, type StoreAuthState } from "./auth";
 import { readInstalledPlugins, runInstalledPluginCommand } from "./plugin-registry";
 import { runPluginInSandbox } from "./plugin-security";
 import { createMarkdownFromTemplate, deleteWorkspaceTemplate, readWorkspaceTemplates, saveWorkspaceTemplate } from "./templates";
@@ -72,6 +73,41 @@ app.whenReady().then(async () => {
   ipcMain.handle("store:set", (_event, key: string, value: unknown) => storeSet(key, value));
   ipcMain.handle("store:delete", (_event, key: string) => storeDelete(key));
 
+  // ── 인증 IPC ──
+  ipcMain.handle("auth:login", async (_event, email: string, password: string) => {
+    const result = await loginWithCredentials(email, password);
+    const authState = toStoreAuthState(result);
+    await storeSet("auth", authState);
+    return authState;
+  });
+
+  ipcMain.handle("auth:logout", async () => {
+    await storeDelete("auth");
+  });
+
+  ipcMain.handle("auth:get", async () => {
+    const stored = storeGetAll()["auth"] as StoreAuthState | undefined;
+    if (!stored?.accessToken) return null;
+    try {
+      const user = await fetchMe(stored.accessToken);
+      const next: StoreAuthState = { ...stored, user };
+      await storeSet("auth", next);
+      return next;
+    } catch {
+      // 액세스 토큰 만료 시 리프레시 시도
+      try {
+        const tokens = await refreshAccessToken(stored.refreshToken);
+        const user = await fetchMe(tokens.accessToken);
+        const next: StoreAuthState = { accessToken: tokens.accessToken, refreshToken: tokens.refreshToken, user };
+        await storeSet("auth", next);
+        return next;
+      } catch {
+        await storeDelete("auth");
+        return null;
+      }
+    }
+  });
+
   // 로컬 이미지를 mc-asset:// 프로토콜로 안전하게 서빙
   protocol.handle("mc-asset", (request) => {
     const encodedPath = request.url.slice("mc-asset://".length);
@@ -110,6 +146,15 @@ app.whenReady().then(async () => {
   );
   ipcMain.handle("assets:sync", (_event, accessToken: string) => installAssetsFromStore(accessToken));
   ipcMain.handle("assets:theme", () => readCurrentThemeCss());
+  ipcMain.handle("assets:uninstall-local", (_event, assetId: string) => uninstallLocalAsset(assetId));
+  ipcMain.handle("assets:uninstall-remote", async (_event, assetId: string, accessToken: string) => {
+    const { API_BASE_URL } = await import("./auth");
+    const response = await fetch(`${API_BASE_URL}/assets/${assetId}/install`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${accessToken}` }
+    });
+    if (!response.ok) throw new Error(`설치 취소 실패 (${response.status})`);
+  });
   ipcMain.handle("plugins:list", () => readInstalledPlugins());
   ipcMain.handle("plugins:run-command", (_event, input: PluginRunInput) => runInstalledPluginCommand(input));
   ipcMain.handle("plugin:run", (_event, code: string, input: unknown) => runPluginInSandbox(code, input));
