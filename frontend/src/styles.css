@@ -71,3 +71,115 @@ body {
 .field-input {
   @apply h-11 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100;
 }
+
+/* ── 애니메이션 키프레임 ─────────────────────────────────────────────── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-10px); }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.18; transform: scale(1); }
+  50%       { opacity: 0.28; transform: scale(1.08); }
+}
+@keyframes slide-in-left {
+  from { opacity: 0; transform: translateX(-32px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(32px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes border-spin {
+  to { --angle: 360deg; }
+}
+@keyframes count-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── 유틸 클래스 ──────────────────────────────────────────────────────── */
+.animate-fade-up   { animation: fade-up  0.55s cubic-bezier(.22,.68,0,1.2) both; }
+.animate-fade-in   { animation: fade-in  0.5s ease both; }
+.animate-float     { animation: float    5s ease-in-out infinite; }
+.animate-scale-in  { animation: scale-in 0.5s cubic-bezier(.22,.68,0,1.2) both; }
+.animate-slide-left  { animation: slide-in-left  0.55s cubic-bezier(.22,.68,0,1.2) both; }
+.animate-slide-right { animation: slide-in-right 0.55s cubic-bezier(.22,.68,0,1.2) both; }
+
+.delay-100 { animation-delay: 0.10s; }
+.delay-150 { animation-delay: 0.15s; }
+.delay-200 { animation-delay: 0.20s; }
+.delay-300 { animation-delay: 0.30s; }
+.delay-400 { animation-delay: 0.40s; }
+.delay-500 { animation-delay: 0.50s; }
+.delay-600 { animation-delay: 0.60s; }
+.delay-700 { animation-delay: 0.70s; }
+.delay-800 { animation-delay: 0.80s; }
+
+/* 스크롤 트리거 — JS가 .in-view 를 붙여줌 */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s cubic-bezier(.22,.68,0,1.2),
+              transform 0.6s cubic-bezier(.22,.68,0,1.2);
+}
+.reveal.stagger-1 { transition-delay: 0.05s; }
+.reveal.stagger-2 { transition-delay: 0.12s; }
+.reveal.stagger-3 { transition-delay: 0.20s; }
+.reveal.stagger-4 { transition-delay: 0.28s; }
+.reveal.stagger-5 { transition-delay: 0.36s; }
+.reveal.stagger-6 { transition-delay: 0.44s; }
+.reveal.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 그라디언트 shimmer 텍스트 */
+.text-gradient {
+  background: linear-gradient(90deg, #60a5fa 0%, #a78bfa 40%, #60a5fa 80%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 3.5s linear infinite;
+}
+
+/* 카드 호버 shine 효과 */
+.shine-card {
+  position: relative;
+  overflow: hidden;
+}
+.shine-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.07) 50%, transparent 60%);
+  transform: translateX(-100%);
+  transition: transform 0.5s ease;
+}
+.shine-card:hover::after {
+  transform: translateX(100%);
+}
+
+/* glow 배경 애니메이션 */
+.glow-animate {
+  animation: glow-pulse 6s ease-in-out infinite;
+}
+.glow-animate-delay {
+  animation: glow-pulse 6s ease-in-out 3s infinite;
+}
