@@ -8,8 +8,7 @@ import org.hibernate.annotations.UuidGenerator;
 import java.time.Instant;
 
 @Entity
-@Table(name = "asset_reviews",
-       uniqueConstraints = @UniqueConstraint(columnNames = {"asset_id", "user_id"}))
+@Table(name = "asset_reviews")
 @Getter @Setter @NoArgsConstructor
 public class AssetReview {
 
