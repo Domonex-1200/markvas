@@ -113,7 +113,7 @@ export default function MePage(): JSX.Element {
                 <img src={profilePictureUrl} alt="프로필" className="h-full w-full object-cover" />
               ) : (
                 <span className="flex h-full w-full items-center justify-center text-3xl font-black" style={{ color: "var(--text-secondary)" }}>
-                  {(profile.nickname ?? profile.email)[0].toUpperCase()}
+                  {((profile.nickname ?? profile.email) || "?")[0].toUpperCase()}
                 </span>
               )}
             </div>
