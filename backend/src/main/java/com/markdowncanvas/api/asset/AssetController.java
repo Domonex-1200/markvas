@@ -46,6 +46,33 @@ public class AssetController {
         return assetService.installedByUser(principal.userId());
     }
 
+    @GetMapping("/me/library")
+    @PreAuthorize("isAuthenticated()")
+    public List<AssetDto.LibraryItemResponse> library(@AuthenticationPrincipal JwtPrincipal principal) {
+        return assetService.libraryByUser(principal.userId());
+    }
+
+    @PostMapping("/{id}/library/activate")
+    @PreAuthorize("isAuthenticated()")
+    public AssetDto.LibraryItemResponse activateLibrary(@AuthenticationPrincipal JwtPrincipal principal,
+                                                         @PathVariable String id) {
+        return assetService.activateLibrary(principal.userId(), id);
+    }
+
+    @PostMapping("/{id}/library/deactivate")
+    @PreAuthorize("isAuthenticated()")
+    public AssetDto.LibraryItemResponse deactivateLibrary(@AuthenticationPrincipal JwtPrincipal principal,
+                                                           @PathVariable String id) {
+        return assetService.deactivateLibrary(principal.userId(), id);
+    }
+
+    @DeleteMapping("/{id}/library")
+    @PreAuthorize("isAuthenticated()")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void removeFromLibrary(@AuthenticationPrincipal JwtPrincipal principal, @PathVariable String id) {
+        assetService.removeFromLibrary(principal.userId(), id);
+    }
+
     @GetMapping("/me/entitlements")
     @PreAuthorize("isAuthenticated()")
     public List<AssetDto.EntitlementResponse> entitlements(@AuthenticationPrincipal JwtPrincipal principal) {

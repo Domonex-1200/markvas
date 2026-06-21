@@ -247,8 +247,40 @@ public class AssetService {
         userAssets.deleteByUserIdAndAssetId(userId, assetId);
     }
 
-    public List<AssetDto.InstalledAssetResponse> installedByUser(String userId) {
+    // ── 라이브러리 관리 ────────────────────────────────────────────────────
+
+    public List<AssetDto.LibraryItemResponse> libraryByUser(String userId) {
         return userAssets.findByUserIdOrderByInstalledAtDesc(userId)
+                .stream().map(AssetDto.LibraryItemResponse::from).toList();
+    }
+
+    @Transactional
+    public AssetDto.LibraryItemResponse activateLibrary(String userId, String assetId) {
+        UserAsset ua = userAssets.findByUserIdAndAssetId(userId, assetId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "라이브러리에 없는 에셋입니다."));
+        ua.setStatus(LibraryStatus.ACTIVE);
+        ua.setActivatedAt(java.time.Instant.now());
+        return AssetDto.LibraryItemResponse.from(userAssets.save(ua));
+    }
+
+    @Transactional
+    public AssetDto.LibraryItemResponse deactivateLibrary(String userId, String assetId) {
+        UserAsset ua = userAssets.findByUserIdAndAssetId(userId, assetId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "라이브러리에 없는 에셋입니다."));
+        ua.setStatus(LibraryStatus.INACTIVE);
+        return AssetDto.LibraryItemResponse.from(userAssets.save(ua));
+    }
+
+    @Transactional
+    public void removeFromLibrary(String userId, String assetId) {
+        userAssets.findByUserIdAndAssetId(userId, assetId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "라이브러리에 없는 에셋입니다."));
+        userAssets.deleteByUserIdAndAssetId(userId, assetId);
+    }
+
+    // 노트 프로그램용: ACTIVE 에셋만 반환
+    public List<AssetDto.InstalledAssetResponse> installedByUser(String userId) {
+        return userAssets.findByUserIdAndStatusOrderByInstalledAtDesc(userId, LibraryStatus.ACTIVE)
                 .stream().map(AssetDto.InstalledAssetResponse::from).toList();
     }
 

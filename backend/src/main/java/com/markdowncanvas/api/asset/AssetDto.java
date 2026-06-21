@@ -145,6 +145,25 @@ public class AssetDto {
         }
     }
 
+    @Data
+    public static class LibraryItemResponse {
+        private String        id;
+        private AssetResponse asset;
+        private String        status;      // ACTIVE | INACTIVE
+        private String        installedAt;
+        private String        activatedAt;
+
+        public static LibraryItemResponse from(UserAsset ua) {
+            LibraryItemResponse r = new LibraryItemResponse();
+            r.id          = ua.getId();
+            r.asset       = AssetResponse.from(ua.getAsset());
+            r.status      = ua.getStatus().name();
+            r.installedAt = ua.getInstalledAt().toString();
+            r.activatedAt = ua.getActivatedAt() != null ? ua.getActivatedAt().toString() : null;
+            return r;
+        }
+    }
+
     // ── 공통 유틸 ─────────────────────────────────────────────────────────
     static JsonNode parseJson(String json) {
         try { return MAPPER.readTree(json != null ? json : "{}"); }

@@ -1,67 +1,73 @@
 import { useEffect, useState } from "react";
-import { Check, Download, X } from "lucide-react";
-import { getInstalledAssets, installAsset, purchaseAsset, uninstallAsset } from "../lib/api";
+import { BookMarked, Check, Download, PauseCircle } from "lucide-react";
+import { getLibrary, installAsset } from "../lib/api";
+import type { LibraryStatus } from "../types";
 
 interface Props {
   assetId: string;
   priceCents?: number;
 }
 
+type ButtonState = "idle" | "busy" | "active" | "inactive" | "error";
+
 export function InstallButton({ assetId, priceCents = 0 }: Props): JSX.Element {
-  const [status, setStatus] = useState<"idle" | "busy" | "registered" | "error">("idle");
+  const [state, setState] = useState<ButtonState>("idle");
+  const [libraryStatus, setLibraryStatus] = useState<LibraryStatus | null>(null);
   const isFree = priceCents === 0;
 
   useEffect(() => {
     const token = window.localStorage.getItem("accessToken");
     if (!token) return;
-    getInstalledAssets(token)
+    getLibrary(token)
       .then((items) => {
-        if (Array.isArray(items) && items.some((item) => item.asset.id === assetId)) setStatus("registered");
+        const found = items.find((i) => i.asset.id === assetId);
+        if (found) {
+          setLibraryStatus(found.status);
+          setState(found.status === "ACTIVE" ? "active" : "inactive");
+        }
       })
       .catch(() => undefined);
   }, [assetId]);
 
-  async function acquire(): Promise<void> {
+  async function addToLibrary(): Promise<void> {
     const token = window.localStorage.getItem("accessToken");
     if (!token) { window.location.href = "/login"; return; }
-    setStatus("busy");
+    setState("busy");
     try {
-      if (!isFree) {
-        await purchaseAsset(assetId, token);
-      }
       await installAsset(assetId, token);
-      setStatus("registered");
+      setLibraryStatus("INACTIVE");
+      setState("inactive");
     } catch {
-      setStatus("error");
+      setState("error");
     }
   }
 
-  async function unregister(): Promise<void> {
-    const token = window.localStorage.getItem("accessToken");
-    if (!token) return;
-    setStatus("busy");
-    try {
-      await uninstallAsset(assetId, token);
-      setStatus("idle");
-    } catch {
-      setStatus("error");
-    }
-  }
-
-  if (status === "registered") {
+  if (state === "active") {
     return (
-      <div className="space-y-2">
-        <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm font-bold text-emerald-700">
-          <Check size={16} />
-          설치됨
-        </div>
-        <button
-          className="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-400 transition hover:border-red-200 hover:text-red-500"
-          onClick={() => void unregister()}
+      <div
+        className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-bold"
+        style={{ background: "rgba(32,197,188,0.12)", color: "var(--teal)", border: "1px solid rgba(32,197,188,0.3)" }}
+      >
+        <Check size={15} />
+        활성 등록됨
+      </div>
+    );
+  }
+
+  if (state === "inactive") {
+    return (
+      <div className="space-y-1.5">
+        <div
+          className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-bold"
+          style={{ background: "rgba(248,169,74,0.10)", color: "#f8a94a", border: "1px solid rgba(248,169,74,0.25)" }}
         >
-          <X size={13} />
-          설치 해제
-        </button>
+          <PauseCircle size={15} />
+          라이브러리에 있음 (비활성)
+        </div>
+        <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+          라이브러리에서 활성화하면 노트 앱에 등록됩니다.{" "}
+          <a href="/library" className="underline" style={{ color: "var(--teal)" }}>라이브러리 이동</a>
+        </p>
       </div>
     );
   }
@@ -69,17 +75,19 @@ export function InstallButton({ assetId, priceCents = 0 }: Props): JSX.Element {
   return (
     <button
       className="button w-full"
-      onClick={() => void acquire()}
-      disabled={status === "busy"}
+      onClick={() => void addToLibrary()}
+      disabled={state === "busy"}
     >
-      <Download size={16} />
-      {status === "error"
-        ? "오류 발생 — 다시 시도"
-        : status === "busy"
-        ? "처리 중…"
-        : isFree
-        ? "무료 설치"
-        : `구매 후 설치`}
+      {state === "busy" ? (
+        "처리 중…"
+      ) : state === "error" ? (
+        "오류 발생 — 다시 시도"
+      ) : (
+        <>
+          {isFree ? <Download size={16} /> : <BookMarked size={16} />}
+          {isFree ? "라이브러리에 추가" : "구매 후 추가"}
+        </>
+      )}
     </button>
   );
 }

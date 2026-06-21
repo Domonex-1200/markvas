@@ -25,6 +25,13 @@ public class UserAsset {
     @JoinColumn(name = "asset_id", nullable = false)
     private Asset asset;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 16)
+    private LibraryStatus status = LibraryStatus.INACTIVE;
+
     @Column(name = "installed_at", nullable = false, updatable = false)
     private Instant installedAt = Instant.now();
+
+    @Column(name = "activated_at")
+    private Instant activatedAt;
 }

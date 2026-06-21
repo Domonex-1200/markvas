@@ -65,6 +65,16 @@ export interface RatingSummary {
   reviewCount: number;
 }
 
+export type LibraryStatus = "ACTIVE" | "INACTIVE";
+
+export interface LibraryItem {
+  id: string;
+  asset: StoreAsset;
+  status: LibraryStatus;
+  installedAt: string;
+  activatedAt?: string;
+}
+
 export interface StoreCartItem     { id: string; asset: StoreAsset; addedAt: string }
 export interface StoreWishlistItem { id: string; asset: StoreAsset; addedAt: string }
 export interface StoreEntitlement  { id: string; asset: StoreAsset; source: string; grantedAt: string }

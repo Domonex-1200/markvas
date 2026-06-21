@@ -9,6 +9,7 @@ import type {
   CurrentUser,
   DeveloperApplication,
   InstalledAsset,
+  LibraryItem,
   StoreAsset,
   StoreCartItem,
   StoreEntitlement,
@@ -260,6 +261,22 @@ export async function getInstalledAssets(accessToken: string): Promise<Installed
 
 export async function getEntitlements(accessToken: string): Promise<StoreEntitlement[]> {
   return (await api.get<StoreEntitlement[]>("/assets/me/entitlements", auth(accessToken))).data;
+}
+
+export async function getLibrary(accessToken: string): Promise<LibraryItem[]> {
+  return (await api.get<LibraryItem[]>("/assets/me/library", auth(accessToken))).data;
+}
+
+export async function activateLibraryAsset(assetId: string, accessToken: string): Promise<LibraryItem> {
+  return (await api.post<LibraryItem>(`/assets/${assetId}/library/activate`, undefined, auth(accessToken))).data;
+}
+
+export async function deactivateLibraryAsset(assetId: string, accessToken: string): Promise<LibraryItem> {
+  return (await api.post<LibraryItem>(`/assets/${assetId}/library/deactivate`, undefined, auth(accessToken))).data;
+}
+
+export async function removeFromLibrary(assetId: string, accessToken: string): Promise<void> {
+  await api.delete(`/assets/${assetId}/library`, auth(accessToken));
 }
 
 // ── 위시리스트 ────────────────────────────────────────────────────────────
