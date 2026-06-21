@@ -57,22 +57,22 @@ export function ReviewSection({ assetId }: Props): JSX.Element {
   const avg = reviews.length ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length : 0;
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-7 shadow-sm">
+    <div className="rounded-2xl p-7" style={{ background: "var(--bg-raised)", border: "1px solid var(--border)" }}>
       <div className="mb-5 flex items-center gap-4">
-        <h2 className="text-base font-bold text-slate-900">리뷰</h2>
-        {reviews.length > 0 && (
+        <h2 className="text-base font-bold" style={{ color: "var(--text-primary)" }}>리뷰</h2>
+        {Array.isArray(reviews) && reviews.length > 0 && (
           <div className="flex items-center gap-2">
             <StarRating value={Math.round(avg)} size={15} />
-            <span className="text-sm font-bold text-slate-700">{avg.toFixed(1)}</span>
-            <span className="text-xs text-slate-400">({reviews.length})</span>
+            <span className="text-sm font-bold" style={{ color: "var(--text-secondary)" }}>{avg.toFixed(1)}</span>
+            <span className="text-xs" style={{ color: "var(--text-muted)" }}>({reviews.length})</span>
           </div>
         )}
       </div>
 
       {/* 작성 폼 */}
       {token && !alreadyReviewed && (
-        <div className="mb-6 rounded-lg border border-slate-100 bg-slate-50 p-4">
-          <p className="mb-2 text-sm font-semibold text-slate-700">리뷰 작성</p>
+        <div className="mb-6 rounded-xl p-4" style={{ background: "var(--bg-overlay)", border: "1px solid var(--border)" }}>
+          <p className="mb-2 text-sm font-semibold" style={{ color: "var(--text-secondary)" }}>리뷰 작성</p>
           <div className="mb-3">
             <StarRating value={myRating} onChange={setMyRating} size={22} />
           </div>
@@ -82,7 +82,7 @@ export function ReviewSection({ assetId }: Props): JSX.Element {
             value={myBody}
             onChange={(e) => setMyBody(e.target.value)}
           />
-          {msg && <p className="mt-1 text-xs font-semibold text-red-500">{msg}</p>}
+          {msg && <p className="mt-1 text-xs font-semibold" style={{ color: "#f87171" }}>{msg}</p>}
           <button className="button mt-2" disabled={submitting} onClick={submit} type="button">
             {submitting ? "등록 중…" : "리뷰 등록"}
           </button>
@@ -91,38 +91,39 @@ export function ReviewSection({ assetId }: Props): JSX.Element {
 
       {/* 리뷰 목록 */}
       {loading ? (
-        <p className="text-sm text-slate-400">불러오는 중…</p>
-      ) : reviews.length === 0 ? (
-        <p className="text-sm text-slate-400">아직 리뷰가 없습니다. 첫 번째 리뷰를 남겨보세요.</p>
+        <p className="text-sm" style={{ color: "var(--text-muted)" }}>불러오는 중…</p>
+      ) : !Array.isArray(reviews) || reviews.length === 0 ? (
+        <p className="text-sm" style={{ color: "var(--text-muted)" }}>아직 리뷰가 없습니다. 첫 번째 리뷰를 남겨보세요.</p>
       ) : (
         <div className="space-y-4">
           {reviews.map((r) => (
             <div key={r.id} className="flex gap-3">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full" style={{ background: "var(--bg-overlay)" }}>
                 {r.userProfilePictureUrl ? (
                   <img src={r.userProfilePictureUrl} className="h-full w-full rounded-full object-cover" alt="" />
                 ) : (
-                  <UserRound size={16} className="text-slate-400" />
+                  <UserRound size={16} style={{ color: "var(--text-muted)" }} />
                 )}
               </div>
               <div className="flex-1">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-slate-800">{r.userNickname ?? "익명"}</span>
+                    <span className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>{r.userNickname ?? "익명"}</span>
                     <StarRating value={r.rating} size={13} />
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-slate-400">{new Date(r.createdAt).toLocaleDateString("ko-KR")}</span>
+                    <span className="text-xs" style={{ color: "var(--text-muted)" }}>{new Date(r.createdAt).toLocaleDateString("ko-KR")}</span>
                     {r.userId === myUserId && (
                       <button
-                        className="text-xs text-red-400 hover:text-red-600"
+                        className="text-xs transition hover:opacity-80"
+                        style={{ color: "#f87171" }}
                         onClick={() => void remove(r)}
                         type="button"
                       >삭제</button>
                     )}
                   </div>
                 </div>
-                {r.body && <p className="mt-1 text-sm leading-6 text-slate-600">{r.body}</p>}
+                {r.body && <p className="mt-1 text-sm leading-6" style={{ color: "var(--text-secondary)" }}>{r.body}</p>}
               </div>
             </div>
           ))}

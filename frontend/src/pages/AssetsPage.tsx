@@ -19,7 +19,7 @@ export default function AssetsPage(): JSX.Element {
   }, []);
 
   return (
-    <main className="min-h-screen bg-[#f5f7fb]">
+    <main className="min-h-screen" style={{ background: "var(--bg-base)" }}>
       <SiteHeader />
 
       <section className="hero-dark border-b border-white/10 text-white" id="hero-section">
@@ -47,10 +47,10 @@ export default function AssetsPage(): JSX.Element {
 
       <section className="mx-auto max-w-7xl px-6 py-8">
         {loading && (
-          <div className="py-20 text-center text-slate-500">불러오는 중...</div>
+          <div className="py-20 text-center" style={{ color: "var(--text-muted)" }}>불러오는 중...</div>
         )}
         {error && (
-          <div className="rounded-lg border border-red-200 bg-red-50 px-6 py-10 text-center text-red-600">
+          <div className="rounded-xl px-6 py-10 text-center" style={{ background: "rgba(239,68,68,0.10)", border: "1px solid rgba(239,68,68,0.25)", color: "#f87171" }}>
             <p className="font-bold">연결 오류</p>
             <p className="mt-1 text-sm">{error}</p>
           </div>

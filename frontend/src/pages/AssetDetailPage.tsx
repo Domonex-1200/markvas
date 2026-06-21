@@ -41,21 +41,21 @@ export default function AssetDetailPage(): JSX.Element {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-[#f5f7fb]">
+      <main className="min-h-screen" style={{ background: "var(--bg-base)" }}>
         <SiteHeader />
-        <div className="py-20 text-center text-slate-500">불러오는 중...</div>
+        <div className="py-20 text-center" style={{ color: "var(--text-muted)" }}>불러오는 중...</div>
       </main>
     );
   }
 
   if (error) {
     return (
-      <main className="min-h-screen bg-[#f5f7fb]">
+      <main className="min-h-screen" style={{ background: "var(--bg-base)" }}>
         <SiteHeader />
         <div className="mx-auto max-w-4xl px-6 py-20 text-center">
-          <p className="font-bold text-red-600">연결 오류</p>
-          <p className="mt-1 text-sm text-red-500">{error}</p>
-          <Link className="mt-4 inline-block text-sm font-semibold text-blue-600 hover:underline" to="/assets">
+          <p className="font-bold" style={{ color: "#f87171" }}>연결 오류</p>
+          <p className="mt-1 text-sm" style={{ color: "var(--text-muted)" }}>{error}</p>
+          <Link className="mt-4 inline-block text-sm font-semibold hover:underline" style={{ color: "var(--teal)" }} to="/assets">
             스토어로 돌아가기
           </Link>
         </div>
@@ -69,13 +69,14 @@ export default function AssetDetailPage(): JSX.Element {
   const isFree = !asset.priceCents || asset.priceCents === 0;
 
   return (
-    <main className="min-h-screen bg-[#f5f7fb]">
+    <main className="min-h-screen" style={{ background: "var(--bg-base)" }}>
       <SiteHeader />
 
       <div className="mx-auto max-w-5xl px-6 py-8">
         {/* 뒤로가기 */}
         <Link
-          className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-500 transition hover:text-slate-900"
+          className="inline-flex items-center gap-1.5 text-sm font-semibold transition hover:opacity-80"
+          style={{ color: "var(--text-muted)" }}
           to="/assets"
         >
           <ArrowLeft size={14} />
@@ -85,80 +86,84 @@ export default function AssetDetailPage(): JSX.Element {
         {/* 커버 이미지 */}
         {asset.metadata.media?.coverImageUrl ? (
           <img
-            className="mt-5 aspect-[16/6] w-full rounded-xl object-cover shadow-md"
+            className="mt-5 aspect-[16/6] w-full rounded-2xl object-cover"
+            style={{ boxShadow: "0 20px 60px rgba(0,0,0,0.5)" }}
             src={asset.metadata.media.coverImageUrl}
             alt={`${asset.title} cover`}
           />
         ) : (
-          <div className="mt-5 flex aspect-[16/6] w-full items-center justify-center rounded-xl bg-[linear-gradient(135deg,#111827,#1d4ed8)] shadow-md">
-            <Icon className="text-white/40" size={64} />
+          <div
+            className="mt-5 flex aspect-[16/6] w-full items-center justify-center rounded-2xl"
+            style={{ background: "linear-gradient(135deg, var(--bg-overlay), rgba(32,197,188,0.15))" }}
+          >
+            <Icon style={{ color: "var(--teal)", opacity: 0.4 }} size={64} />
           </div>
         )}
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_260px]">
           {/* 왼쪽: 정보 */}
-          <div className="space-y-6 min-w-0">
-            <div className="rounded-xl border border-slate-200 bg-white p-7 shadow-sm">
+          <div className="space-y-4 min-w-0">
+            <div className="rounded-2xl p-7" style={{ background: "var(--bg-raised)", border: "1px solid var(--border)" }}>
               <div className="mb-4 flex flex-wrap items-center gap-2">
-                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">
+                <span className="rounded-full px-3 py-1 text-xs font-bold" style={{ background: "var(--bg-overlay)", color: "var(--text-secondary)" }}>
                   {TYPE_LABEL[asset.type]}
                 </span>
-                <span className={`rounded-full px-3 py-1 text-xs font-bold ${isFree ? "bg-emerald-50 text-emerald-700" : "bg-blue-50 text-blue-700"}`}>
+                <span className="rounded-full px-3 py-1 text-xs font-bold" style={isFree ? { background: "rgba(32,197,188,0.12)", color: "var(--teal)" } : { background: "rgba(124,92,252,0.12)", color: "var(--purple)" }}>
                   {isFree ? "무료" : `₩${(asset.priceCents! / 100).toLocaleString()}`}
                 </span>
                 {(asset.tags ?? []).map((tag) => (
-                  <span key={tag} className="rounded-full bg-violet-50 px-3 py-1 text-xs font-bold text-violet-700">#{tag}</span>
+                  <span key={tag} className="rounded-full px-3 py-1 text-xs font-bold" style={{ background: "rgba(124,92,252,0.10)", color: "var(--purple)" }}>#{tag}</span>
                 ))}
                 {(asset.reviewCount ?? 0) > 0 && (
                   <div className="flex items-center gap-1">
                     <StarRating value={Math.round(asset.avgRating ?? 0)} size={13} />
-                    <span className="text-xs text-slate-500">{(asset.avgRating ?? 0).toFixed(1)} ({asset.reviewCount})</span>
+                    <span className="text-xs" style={{ color: "var(--text-muted)" }}>{(asset.avgRating ?? 0).toFixed(1)} ({asset.reviewCount})</span>
                   </div>
                 )}
               </div>
 
-              <h1 className="text-3xl font-black text-slate-950">{asset.title}</h1>
+              <h1 className="text-3xl font-black" style={{ color: "var(--text-primary)" }}>{asset.title}</h1>
 
               {asset.metadata.summary && (
-                <p className="mt-3 text-base font-semibold text-blue-600">{asset.metadata.summary}</p>
+                <p className="mt-3 text-base font-semibold" style={{ color: "var(--teal)" }}>{asset.metadata.summary}</p>
               )}
 
-              <p className="mt-4 leading-7 text-slate-600">
+              <p className="mt-4 leading-7" style={{ color: "var(--text-secondary)" }}>
                 {asset.metadata.description ?? "설명이 아직 없습니다."}
               </p>
             </div>
 
             {/* 변경 내역 */}
             {asset.metadata.changelog && (
-              <div className="rounded-xl border border-slate-200 bg-white p-7 shadow-sm">
-                <h2 className="text-base font-bold text-slate-900">변경 내역</h2>
-                <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-slate-600">
+              <div className="rounded-2xl p-7" style={{ background: "var(--bg-raised)", border: "1px solid var(--border)" }}>
+                <h2 className="text-base font-bold" style={{ color: "var(--text-primary)" }}>변경 내역</h2>
+                <p className="mt-3 whitespace-pre-wrap text-sm leading-6" style={{ color: "var(--text-secondary)" }}>
                   {asset.metadata.changelog}
                 </p>
               </div>
             )}
 
             {/* 에셋 정보 */}
-            <div className="rounded-xl border border-slate-200 bg-white p-7 shadow-sm">
-              <h2 className="text-base font-bold text-slate-900">에셋 정보</h2>
+            <div className="rounded-2xl p-7" style={{ background: "var(--bg-raised)", border: "1px solid var(--border)" }}>
+              <h2 className="text-base font-bold" style={{ color: "var(--text-primary)" }}>에셋 정보</h2>
               <dl className="mt-4 grid gap-4 sm:grid-cols-2">
                 {asset.metadata.version && (
                   <div>
-                    <dt className="text-xs font-semibold uppercase tracking-wide text-slate-400">버전</dt>
-                    <dd className="mt-1 text-sm font-medium text-slate-700">{asset.metadata.version}</dd>
+                    <dt className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>버전</dt>
+                    <dd className="mt-1 text-sm font-medium" style={{ color: "var(--text-secondary)" }}>{asset.metadata.version}</dd>
                   </div>
                 )}
                 <div>
-                  <dt className="text-xs font-semibold uppercase tracking-wide text-slate-400">유형</dt>
-                  <dd className="mt-1 text-sm font-medium text-slate-700">{TYPE_LABEL[asset.type]}</dd>
+                  <dt className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>유형</dt>
+                  <dd className="mt-1 text-sm font-medium" style={{ color: "var(--text-secondary)" }}>{TYPE_LABEL[asset.type]}</dd>
                 </div>
                 <div>
-                  <dt className="text-xs font-semibold uppercase tracking-wide text-slate-400">라이선스</dt>
-                  <dd className="mt-1 text-sm font-medium text-slate-700">무료 사용</dd>
+                  <dt className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>라이선스</dt>
+                  <dd className="mt-1 text-sm font-medium" style={{ color: "var(--text-secondary)" }}>무료 사용</dd>
                 </div>
                 <div>
-                  <dt className="text-xs font-semibold uppercase tracking-wide text-slate-400">가격</dt>
-                  <dd className="mt-1 text-sm font-medium text-slate-700">{isFree ? "무료" : `₩${(asset.priceCents! / 100).toLocaleString()}`}</dd>
+                  <dt className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>가격</dt>
+                  <dd className="mt-1 text-sm font-medium" style={{ color: "var(--text-secondary)" }}>{isFree ? "무료" : `₩${(asset.priceCents! / 100).toLocaleString()}`}</dd>
                 </div>
               </dl>
             </div>
@@ -169,7 +174,7 @@ export default function AssetDetailPage(): JSX.Element {
 
           {/* 오른쪽: 설치/액션 */}
           <div className="space-y-3 lg:sticky lg:top-20 lg:self-start">
-            <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="rounded-2xl p-5" style={{ background: "var(--bg-raised)", border: "1px solid var(--border)" }}>
               <InstallButton assetId={asset.id} priceCents={asset.priceCents ?? 0} />
               <div className="mt-2">
                 <AssetCommerceActions assetId={asset.id} />

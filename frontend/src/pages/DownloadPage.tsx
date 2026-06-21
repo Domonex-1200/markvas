@@ -32,7 +32,7 @@ export default function DownloadPage(): JSX.Element {
   }, []);
 
   return (
-    <main className="min-h-screen bg-[#f5f7fb]">
+    <main className="min-h-screen" style={{ background: "var(--bg-base)" }}>
       <SiteHeader />
 
       <section className="hero-dark text-white" id="hero-section">
@@ -51,24 +51,47 @@ export default function DownloadPage(): JSX.Element {
           const [latest, ...older] = releases;
           return (
             <>
-              <article className="surface-card p-6" key={latest.id}>
+              <article
+                className="rounded-2xl p-6"
+                key={latest.id}
+                style={{ background: "var(--bg-raised)", border: "1px solid var(--border)" }}
+              >
                 <div className="mb-4 flex items-start justify-between gap-3">
                   <div>
-                    <h2 className="text-xl font-black text-slate-950">Windows 설치 파일</h2>
-                    <p className="mt-1 text-sm text-slate-500">v{latest.version} · {latest.channel} · {new Date(latest.publishedAt).toLocaleDateString("ko-KR")}</p>
+                    <h2 className="text-xl font-black" style={{ color: "var(--text-primary)" }}>Windows 설치 파일</h2>
+                    <p className="mt-1 text-sm" style={{ color: "var(--text-muted)" }}>
+                      v{latest.version} · {latest.channel} · {new Date(latest.publishedAt).toLocaleDateString("ko-KR")}
+                    </p>
                   </div>
-                  <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-black uppercase text-blue-700">최신</span>
+                  <span
+                    className="rounded-full px-3 py-1 text-xs font-black uppercase"
+                    style={{ background: "rgba(32,197,188,0.15)", color: "var(--teal)" }}
+                  >
+                    최신
+                  </span>
                 </div>
-                <p className="min-h-10 text-sm leading-6 text-slate-700">{latest.releaseNotes}</p>
-                <dl className="mt-4 space-y-2 text-xs text-slate-500">
+                <p className="min-h-10 text-sm leading-6" style={{ color: "var(--text-secondary)" }}>
+                  {latest.releaseNotes}
+                </p>
+                <dl className="mt-4 space-y-2 text-xs" style={{ color: "var(--text-muted)" }}>
                   <div>
-                    <dt className="font-bold text-slate-700">Checksum (SHA-256)</dt>
-                    <dd className="mt-1 break-all rounded-md bg-slate-50 p-2 font-mono">{latest.checksum}</dd>
+                    <dt className="font-bold" style={{ color: "var(--text-secondary)" }}>Checksum (SHA-256)</dt>
+                    <dd
+                      className="mt-1 break-all rounded-lg p-2 font-mono"
+                      style={{ background: "var(--bg-overlay)", color: "var(--text-secondary)" }}
+                    >
+                      {latest.checksum}
+                    </dd>
                   </div>
                   {latest.signature && (
                     <div>
-                      <dt className="font-bold text-slate-700">Signature</dt>
-                      <dd className="mt-1 break-all rounded-md bg-slate-50 p-2 font-mono">{latest.signature}</dd>
+                      <dt className="font-bold" style={{ color: "var(--text-secondary)" }}>Signature</dt>
+                      <dd
+                        className="mt-1 break-all rounded-lg p-2 font-mono"
+                        style={{ background: "var(--bg-overlay)", color: "var(--text-secondary)" }}
+                      >
+                        {latest.signature}
+                      </dd>
                     </div>
                   )}
                 </dl>
@@ -81,7 +104,8 @@ export default function DownloadPage(): JSX.Element {
               {older.length > 0 && (
                 <div className="col-span-2">
                   <button
-                    className="flex items-center gap-1.5 text-sm font-bold text-slate-500 hover:text-slate-800"
+                    className="flex items-center gap-1.5 text-sm font-bold transition"
+                    style={{ color: "var(--text-muted)" }}
                     onClick={() => setShowHistory((v) => !v)}
                   >
                     {showHistory ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
@@ -90,11 +114,19 @@ export default function DownloadPage(): JSX.Element {
                   {showHistory && (
                     <div className="mt-3 space-y-3">
                       {older.map((r) => (
-                        <article key={r.id} className="surface-card flex items-center justify-between gap-4 p-4">
+                        <article
+                          key={r.id}
+                          className="flex items-center justify-between gap-4 rounded-xl p-4"
+                          style={{ background: "var(--bg-raised)", border: "1px solid var(--border)" }}
+                        >
                           <div className="min-w-0">
-                            <p className="font-bold text-slate-800">v{r.version}</p>
-                            <p className="mt-0.5 text-xs text-slate-500">{new Date(r.publishedAt).toLocaleDateString("ko-KR")} · {r.channel}</p>
-                            <p className="mt-1 truncate text-sm text-slate-600">{r.releaseNotes}</p>
+                            <p className="font-bold" style={{ color: "var(--text-primary)" }}>v{r.version}</p>
+                            <p className="mt-0.5 text-xs" style={{ color: "var(--text-muted)" }}>
+                              {new Date(r.publishedAt).toLocaleDateString("ko-KR")} · {r.channel}
+                            </p>
+                            <p className="mt-1 truncate text-sm" style={{ color: "var(--text-secondary)" }}>
+                              {r.releaseNotes}
+                            </p>
                           </div>
                           <a className="button-secondary shrink-0 text-sm" href={r.downloadUrl}>
                             <Download size={14} />
@@ -110,12 +142,17 @@ export default function DownloadPage(): JSX.Element {
           );
         })()}
         {!loading && (
-          <aside className="surface-card p-6">
-            <div className="mb-3 flex items-center gap-2 text-sm font-black text-blue-700">
+          <aside
+            className="rounded-2xl p-6"
+            style={{ background: "var(--bg-raised)", border: "1px solid var(--border)" }}
+          >
+            <div className="mb-3 flex items-center gap-2 text-sm font-black" style={{ color: "var(--teal)" }}>
               <ShieldCheck size={16} />
               보안 안내
             </div>
-            <p className="text-sm leading-6 text-slate-600">배포 파일은 GitHub Releases에 연결됩니다.</p>
+            <p className="text-sm leading-6" style={{ color: "var(--text-secondary)" }}>
+              배포 파일은 GitHub Releases에 연결됩니다.
+            </p>
           </aside>
         )}
       </section>

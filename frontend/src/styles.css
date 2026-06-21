@@ -2,32 +2,32 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── Perplexity-inspired color tokens ──────────────────────────────────── */
+/* ── Color tokens ───────────────────────────────────────────────────────── */
 :root {
   color-scheme: dark;
 
-  /* backgrounds */
-  --bg-base:    #07080f;
-  --bg-surface: #111118;
-  --bg-raised:  #18181f;
-  --bg-overlay: #1e1e28;
+  /* backgrounds — midnight navy, clearly not pitch-black */
+  --bg-base:    #0c0d1e;
+  --bg-surface: #13142a;
+  --bg-raised:  #1a1c38;
+  --bg-overlay: #21234a;
 
   /* brand */
   --teal:       #20c5bc;
   --teal-dim:   #17928c;
-  --teal-glow:  rgba(32,197,188,0.18);
+  --teal-glow:  rgba(32,197,188,0.20);
   --purple:     #7c5cfc;
   --purple-dim: #5c3fd4;
-  --purple-glow:rgba(124,92,252,0.15);
+  --purple-glow:rgba(124,92,252,0.18);
 
   /* text */
-  --text-primary:   #f0f0f8;
-  --text-secondary: #9090aa;
-  --text-muted:     #55556a;
+  --text-primary:   #eef0ff;
+  --text-secondary: #9098be;
+  --text-muted:     #5a5d90;
 
   /* borders */
-  --border:       rgba(255,255,255,0.07);
-  --border-hover: rgba(255,255,255,0.14);
+  --border:       rgba(255,255,255,0.09);
+  --border-hover: rgba(255,255,255,0.18);
 
   /* radius */
   --r-card: 16px;
@@ -158,7 +158,15 @@ body {
 
 /* ── 섹션 배경 ─────────────────────────────────────────────────────────── */
 .hero-dark {
-  background: linear-gradient(160deg, #07080f 0%, #0c0e1e 55%, #0f1228 100%);
+  background: linear-gradient(160deg, #0c0d1e 0%, #141638 55%, #181c50 100%);
+}
+
+/* ── 다크 테마 전역 card 기본값 ─────────────────────────────────────────── */
+.page-card {
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--r-card);
+  color: var(--text-primary);
 }
 
 /* ── 애니메이션 키프레임 ────────────────────────────────────────────────── */
@@ -179,8 +187,8 @@ body {
   100% { background-position:  200% center; }
 }
 @keyframes glow-pulse {
-  0%, 100% { opacity: 0.16; transform: scale(1); }
-  50%       { opacity: 0.26; transform: scale(1.06); }
+  0%, 100% { opacity: 0.22; transform: scale(1); }
+  50%       { opacity: 0.36; transform: scale(1.06); }
 }
 @keyframes scale-in {
   from { opacity: 0; transform: scale(0.93); }
