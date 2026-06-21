@@ -70,6 +70,13 @@ public class AssetController {
         return assetService.checkoutFreeCart(principal.userId());
     }
 
+    @PostMapping("/{id}/purchase")
+    @PreAuthorize("isAuthenticated()")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void purchase(@AuthenticationPrincipal JwtPrincipal principal, @PathVariable String id) {
+        assetService.purchase(principal.userId(), id);
+    }
+
     @GetMapping("/{id}")
     public AssetDto.AssetResponse findOne(@PathVariable String id) {
         return assetService.findOne(id);

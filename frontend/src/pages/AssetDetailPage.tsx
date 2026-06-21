@@ -170,7 +170,7 @@ export default function AssetDetailPage(): JSX.Element {
           {/* 오른쪽: 설치/액션 */}
           <div className="space-y-3 lg:sticky lg:top-20 lg:self-start">
             <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-              <InstallButton assetId={asset.id} />
+              <InstallButton assetId={asset.id} priceCents={asset.priceCents ?? 0} />
               <div className="mt-2">
                 <AssetCommerceActions assetId={asset.id} />
               </div>

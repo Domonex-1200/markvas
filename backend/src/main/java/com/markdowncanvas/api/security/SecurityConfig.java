@@ -39,6 +39,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // 인증 없이 접근 가능한 공개 API
                         .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/refresh").permitAll()
+                        .requestMatchers("POST", "/api/assets/*/purchase", "/api/assets/*/install").authenticated()
                         .requestMatchers("GET", "/api/assets", "/api/assets/{id}").permitAll()
                         .requestMatchers("GET", "/api/assets/*/reviews", "/api/assets/*/reviews/summary").permitAll()
                         .requestMatchers("GET", "/api/app/releases", "/api/app/releases/latest").permitAll()

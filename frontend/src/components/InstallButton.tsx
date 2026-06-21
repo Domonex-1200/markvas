@@ -1,9 +1,15 @@
 import { useEffect, useState } from "react";
-import { Download, X } from "lucide-react";
-import { getInstalledAssets, installAsset, uninstallAsset } from "../lib/api";
+import { Check, Download, X } from "lucide-react";
+import { getInstalledAssets, installAsset, purchaseAsset, uninstallAsset } from "../lib/api";
 
-export function InstallButton({ assetId }: { assetId: string }): JSX.Element {
+interface Props {
+  assetId: string;
+  priceCents?: number;
+}
+
+export function InstallButton({ assetId, priceCents = 0 }: Props): JSX.Element {
   const [status, setStatus] = useState<"idle" | "busy" | "registered" | "error">("idle");
+  const isFree = priceCents === 0;
 
   useEffect(() => {
     const token = window.localStorage.getItem("accessToken");
@@ -15,11 +21,14 @@ export function InstallButton({ assetId }: { assetId: string }): JSX.Element {
       .catch(() => undefined);
   }, [assetId]);
 
-  async function register(): Promise<void> {
+  async function acquire(): Promise<void> {
     const token = window.localStorage.getItem("accessToken");
     if (!token) { window.location.href = "/login"; return; }
     setStatus("busy");
     try {
+      if (!isFree) {
+        await purchaseAsset(assetId, token);
+      }
       await installAsset(assetId, token);
       setStatus("registered");
     } catch {
@@ -41,20 +50,36 @@ export function InstallButton({ assetId }: { assetId: string }): JSX.Element {
 
   if (status === "registered") {
     return (
-      <button
-        className="button-secondary flex items-center gap-2 text-slate-500 hover:border-red-300 hover:text-red-600"
-        onClick={() => void unregister()}
-      >
-        <X size={16} />
-        등록 해제
-      </button>
+      <div className="space-y-2">
+        <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm font-bold text-emerald-700">
+          <Check size={16} />
+          설치됨
+        </div>
+        <button
+          className="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-400 transition hover:border-red-200 hover:text-red-500"
+          onClick={() => void unregister()}
+        >
+          <X size={13} />
+          설치 해제
+        </button>
+      </div>
     );
   }
 
   return (
-    <button className="button flex items-center gap-2" onClick={() => void register()} disabled={status === "busy"}>
+    <button
+      className="button w-full"
+      onClick={() => void acquire()}
+      disabled={status === "busy"}
+    >
       <Download size={16} />
-      {status === "error" ? "등록 실패" : status === "busy" ? "처리 중…" : "등록하기"}
+      {status === "error"
+        ? "오류 발생 — 다시 시도"
+        : status === "busy"
+        ? "처리 중…"
+        : isFree
+        ? "무료 설치"
+        : `구매 후 설치`}
     </button>
   );
 }

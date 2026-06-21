@@ -242,6 +242,10 @@ export async function getAdminStats(accessToken: string): Promise<AdminStats> {
 }
 
 // ── 설치/라이브러리 ────────────────────────────────────────────────────────
+export async function purchaseAsset(assetId: string, accessToken: string): Promise<void> {
+  await api.post(`/assets/${assetId}/purchase`, undefined, auth(accessToken));
+}
+
 export async function installAsset(assetId: string, accessToken: string): Promise<void> {
   await api.post(`/assets/${assetId}/install`, undefined, auth(accessToken));
 }
