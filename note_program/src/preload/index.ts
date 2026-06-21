@@ -77,6 +77,9 @@ const api = {
   storeSet: (key: string, value: unknown): Promise<void> => ipcRenderer.invoke("store:set", key, value),
   storeDelete: (key: string): Promise<void> => ipcRenderer.invoke("store:delete", key),
   uninstallAssetLocal: (assetId: string): Promise<void> => ipcRenderer.invoke("assets:uninstall-local", assetId),
+  removeAssetFromLibrary: (assetId: string, accessToken: string): Promise<void> => ipcRenderer.invoke("assets:remove-from-library", assetId, accessToken),
+  listLocalAssets: (): Promise<Array<{ id: string; title: string; type: "THEME" | "TEMPLATE" | "PLUGIN"; version?: string; description?: string; metadata: Record<string, unknown> }>> =>
+    ipcRenderer.invoke("assets:list-local"),
   uninstallAssetRemote: (assetId: string, accessToken: string): Promise<void> => ipcRenderer.invoke("assets:uninstall-remote", assetId, accessToken),
   // 인증
   login: (email: string, password: string): Promise<StoreAuthState> => ipcRenderer.invoke("auth:login", email, password),

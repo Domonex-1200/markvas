@@ -1152,6 +1152,10 @@ export default function App(): JSX.Element {
         onRunCommand={runPluginCommand}
         onDeleteAsset={async (assetId) => {
           await window.markdownCanvas.uninstallAssetLocal(assetId);
+          const auth = await window.markdownCanvas.getAuth?.();
+          if (auth?.accessToken) {
+            await window.markdownCanvas.removeAssetFromLibrary?.(assetId, auth.accessToken).catch(() => {});
+          }
         }}
         onApplyTheme={setThemeCss}
       />

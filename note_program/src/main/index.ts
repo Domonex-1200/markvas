@@ -28,7 +28,7 @@ import {
 protocol.registerSchemesAsPrivileged([
   { scheme: "mc-asset", privileges: { standard: true, secure: true, supportFetchAPI: true, corsEnabled: true } }
 ]);
-import { installAssetsFromStore, readCurrentThemeCss, uninstallLocalAsset } from "./asset-sync";
+import { installAssetsFromStore, listLocalInstalledAssets, readCurrentThemeCss, uninstallLocalAsset } from "./asset-sync";
 import { loginWithCredentials, fetchMe, refreshAccessToken, toStoreAuthState, type StoreAuthState } from "./auth";
 import { readInstalledPlugins, runInstalledPluginCommand } from "./plugin-registry";
 import { runPluginInSandbox } from "./plugin-security";
@@ -147,6 +147,13 @@ app.whenReady().then(async () => {
   ipcMain.handle("assets:sync", (_event, accessToken: string) => installAssetsFromStore(accessToken));
   ipcMain.handle("assets:theme", () => readCurrentThemeCss());
   ipcMain.handle("assets:uninstall-local", (_event, assetId: string) => uninstallLocalAsset(assetId));
+  ipcMain.handle("assets:remove-from-library", async (_event, assetId: string, accessToken: string) => {
+    const response = await fetch(`${API_BASE_URL}/assets/${assetId}/library`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${accessToken}` }
+    });
+    if (!response.ok && response.status !== 404) throw new Error(`라이브러리 제거 실패 (${response.status})`);
+  });
   ipcMain.handle("assets:uninstall-remote", async (_event, assetId: string, accessToken: string) => {
     const { API_BASE_URL } = await import("./auth");
     const response = await fetch(`${API_BASE_URL}/assets/${assetId}/install`, {
@@ -156,6 +163,7 @@ app.whenReady().then(async () => {
     if (!response.ok) throw new Error(`설치 취소 실패 (${response.status})`);
   });
   ipcMain.handle("plugins:list", () => readInstalledPlugins());
+  ipcMain.handle("assets:list-local", () => listLocalInstalledAssets());
   ipcMain.handle("plugins:run-command", (_event, input: PluginRunInput) => runInstalledPluginCommand(input));
   ipcMain.handle("plugin:run", (_event, code: string, input: unknown) => runPluginInSandbox(code, input));
   ipcMain.handle("workspace:create-sample", (_event, workspacePath: string) => createSampleWorkspace(workspacePath));
@@ -208,6 +216,10 @@ app.whenReady().then(async () => {
   });
 
   ipcMain.handle("export:print-to-pdf", async (_event, htmlContent: string, outputPath: string) => {
+    const os = await import("node:os");
+    const tmpHtml = path.join(os.tmpdir(), `markvas-pdf-${Date.now()}.html`);
+    await writeFile(tmpHtml, htmlContent, "utf8");
+
     const pdfWin = new BrowserWindow({
       width: 900,
       height: 1200,
@@ -215,26 +227,26 @@ app.whenReady().then(async () => {
       webPreferences: {
         contextIsolation: true,
         nodeIntegration: false,
-        sandbox: false, // data: URL 로딩 허용
+        sandbox: false,
       },
     });
 
-    // HTML을 data URL로 로드
-    const encoded = Buffer.from(htmlContent, "utf8").toString("base64");
-    await pdfWin.loadURL(`data:text/html;base64,${encoded}`);
+    try {
+      await pdfWin.loadURL("file:///" + tmpHtml.replace(/\\/g, "/"));
+      await new Promise<void>((resolve) => setTimeout(resolve, 1000));
 
-    // 렌더링 안정화 대기 (하이라이팅·폰트 로딩)
-    await new Promise<void>((resolve) => setTimeout(resolve, 800));
+      const pdfBuffer = await pdfWin.webContents.printToPDF({
+        printBackground: true,
+        pageSize: "A4",
+        margins: { top: 15, bottom: 15, left: 15, right: 15 },
+      });
 
-    const pdfBuffer = await pdfWin.webContents.printToPDF({
-      printBackground: true,
-      pageSize: "A4",
-      margins: { top: 15, bottom: 15, left: 15, right: 15 },
-    });
-
-    pdfWin.destroy();
-    await writeFile(outputPath, pdfBuffer);
-    return outputPath;
+      await writeFile(outputPath, pdfBuffer);
+      return outputPath;
+    } finally {
+      pdfWin.destroy();
+      await import("node:fs/promises").then((fs) => fs.rm(tmpHtml, { force: true })).catch(() => {});
+    }
   });
 
   createWindow();
