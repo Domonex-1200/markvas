@@ -936,9 +936,9 @@ function toggleCurrentDocumentPin(): void {
       setInstalledAssets(registered);
       // 로컬에 실제로 설치된 에셋 ID 목록 갱신
       setLocalAssetIds(new Set(registered.map((a) => a.asset.id)));
-      // 로컬에 이미 있는 테마 적용
+      // 서버 기준으로 테마 동기화 (파일 없으면 "" → 테마 해제)
       const localCss = await window.markdownCanvas.getLocalThemeCss();
-      if (localCss) setThemeCss(localCss);
+      setThemeCss(localCss);
       if (workspacePath) await refreshTemplates(workspacePath);
       await refreshPlugins();
       setNotice(`${registered.length}개 에셋이 등록됨. 에셋 관리에서 설치하세요.`);
@@ -952,14 +952,12 @@ function toggleCurrentDocumentPin(): void {
 
   async function installLocalAsset(item: InstalledAsset): Promise<void> {
     try {
-      // 단일 에셋을 로컬에 설치 (syncAssets는 전체 목록용이므로 직접 처리)
+      setIsSyncingAssets(true);
       const auth = await window.markdownCanvas.getAuth?.();
       if (!auth) { setIsLoginOpen(true); return; }
-      // 전체 sync 후 해당 에셋 적용
       const registered = await window.markdownCanvas.syncAssets(auth.accessToken);
       setInstalledAssets(registered);
       setLocalAssetIds(new Set(registered.map((a) => a.asset.id)));
-
       if (item.asset.type === "THEME" && item.asset.metadata?.tokens?.editorCss) {
         setThemeCss(item.asset.metadata.tokens.editorCss);
       }
@@ -968,24 +966,32 @@ function toggleCurrentDocumentPin(): void {
       setNotice(`${item.asset.title} 설치됨.`);
     } catch (caught) {
       setError(toErrorMessage(caught));
+    } finally {
+      setIsSyncingAssets(false);
     }
   }
 
   async function deleteLocalAsset(assetId: string): Promise<void> {
     try {
-      // 현재 적용 중인 테마를 삭제하면 CSS 초기화
+      setIsSyncingAssets(true);
+      // 테마였으면 즉시 CSS 초기화
       const target = installedAssets.find((a) => a.asset.id === assetId);
-      if (target?.asset.type === "THEME") {
-        const assetCss = target.asset.metadata?.tokens?.editorCss ?? "";
-        if (assetCss && themeCss === assetCss) setThemeCss("");
-      }
+      if (target?.asset.type === "THEME") setThemeCss("");
+      // 로컬 파일 제거 + 서버 라이브러리에서도 제거 (다음 동기화 시 재설치 방지)
       await window.markdownCanvas.uninstallAssetLocal(assetId);
+      const auth = await window.markdownCanvas.getAuth?.();
+      if (auth?.accessToken) {
+        await window.markdownCanvas.removeAssetFromLibrary?.(assetId, auth.accessToken).catch(() => {});
+      }
+      setInstalledAssets((prev) => prev.filter((a) => a.asset.id !== assetId));
       setLocalAssetIds((prev) => { const next = new Set(prev); next.delete(assetId); return next; });
       if (workspacePath) await refreshTemplates(workspacePath);
       await refreshPlugins();
-      setNotice("로컬 에셋을 삭제했습니다.");
+      setNotice("에셋을 삭제했습니다.");
     } catch (caught) {
       setError(toErrorMessage(caught));
+    } finally {
+      setIsSyncingAssets(false);
     }
   }
 

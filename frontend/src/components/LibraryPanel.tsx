@@ -38,7 +38,7 @@ export function LibraryPanel(): JSX.Element {
   }
 
   async function remove(assetId: string) {
-    if (!confirm("라이브러리에서 삭제하시겠습니까?\n노트 프로그램에 설치된 에셋은 유지되지만 추가 등록은 불가능합니다.")) return;
+    if (!confirm("라이브러리에서 삭제하시겠습니까?\n다음 동기화 시 노트 프로그램에서도 제거됩니다.")) return;
     setBusy(assetId);
     try {
       await removeFromLibrary(assetId, token);
