@@ -10,7 +10,7 @@ public class AuthDto {
     public static class RegisterRequest {
         @Email @NotBlank private String email;
         @NotBlank private String password;
-        private String nickname;      // 선택 항목
+        private String nickname;
     }
 
     @Data
@@ -48,21 +48,5 @@ public class AuthDto {
     public static class AuthResponse {
         private UserResponse user;
         private TokenResponse tokens;
-    }
-
-    @Data
-    public static class ForgotPasswordRequest {
-        @Email @NotBlank private String email;
-    }
-
-    @Data
-    public static class ResetPasswordRequest {
-        @NotBlank private String token;
-        @NotBlank private String newPassword;
-    }
-
-    @Data
-    public static class GoogleLoginRequest {
-        @NotBlank private String idToken;
     }
 }

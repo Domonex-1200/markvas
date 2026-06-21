@@ -355,19 +355,6 @@ export async function deleteReview(assetId: string, reviewId: string, accessToke
   await api.delete(`/assets/${assetId}/reviews/${reviewId}`, auth(accessToken));
 }
 
-// ── 비밀번호 재설정 ───────────────────────────────────────────────────────
-export async function forgotPassword(email: string): Promise<void> {
-  await api.post("/auth/forgot-password", { email });
-}
-
-export async function resetPassword(token: string, newPassword: string): Promise<void> {
-  await api.post("/auth/reset-password", { token, newPassword });
-}
-
-// ── Google 로그인 ─────────────────────────────────────────────────────────
-export async function googleLogin(idToken: string): Promise<{ user: import("../types").CurrentUser; tokens: import("../types").AuthTokens }> {
-  return (await api.post("/auth/google", { idToken })).data;
-}
 
 // ── 헬퍼 ──────────────────────────────────────────────────────────────────
 function auth(token: string) {

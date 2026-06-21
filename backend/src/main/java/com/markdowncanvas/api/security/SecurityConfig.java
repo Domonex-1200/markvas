@@ -38,8 +38,7 @@ public class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // 인증 없이 접근 가능한 공개 API
-                        .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/refresh",
-                                "/api/auth/forgot-password", "/api/auth/reset-password", "/api/auth/google").permitAll()
+                        .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/refresh").permitAll()
                         .requestMatchers("GET", "/api/assets", "/api/assets/{id}").permitAll()
                         .requestMatchers("GET", "/api/assets/*/reviews", "/api/assets/*/reviews/summary").permitAll()
                         .requestMatchers("GET", "/api/app/releases", "/api/app/releases/latest").permitAll()
