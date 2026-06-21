@@ -19,12 +19,12 @@ function getPasswordRules(pw: string): StrengthRule[] {
   ];
 }
 
-function strengthLevel(rules: StrengthRule[]): { level: 0|1|2|3; color: string; label: string } {
+function strengthLevel(rules: StrengthRule[]): { level: 0|1|2|3; color: string; label: string; textColor: string } {
   const passed = rules.filter((r) => r.ok).length;
-  if (passed === 0) return { level: 0, color: "", label: "" };
-  if (passed === 1) return { level: 1, color: "bg-red-500",  label: "약함" };
-  if (passed === 2) return { level: 2, color: "bg-yellow-400", label: "보통" };
-  return            { level: 3, color: "bg-blue-500",  label: "강함" };
+  if (passed === 0) return { level: 0, color: "", label: "", textColor: "" };
+  if (passed === 1) return { level: 1, color: "bg-red-500",    label: "약함", textColor: "#f87171" };
+  if (passed === 2) return { level: 2, color: "bg-yellow-400", label: "보통", textColor: "#fbbf24" };
+  return            { level: 3, color: "bg-teal-400",  label: "강함", textColor: "var(--teal)" };
 }
 
 export function RegisterForm(): JSX.Element {
@@ -68,14 +68,26 @@ export function RegisterForm(): JSX.Element {
   return (
     <div className="w-full max-w-md">
       <div className="mb-8 flex flex-col items-center gap-3 text-center">
-        <span className="grid h-12 w-12 place-items-center rounded-full bg-blue-600 text-white shadow-lg shadow-blue-600/30">
+        <span
+          className="grid h-12 w-12 place-items-center rounded-2xl"
+          style={{ background: "var(--teal)", color: "#000", boxShadow: "0 0 24px rgba(32,197,188,0.4)" }}
+        >
           <GalleryVerticalEnd size={22} />
         </span>
-        <h1 className="text-2xl font-black text-white">MarkVas 시작하기</h1>
-        <p className="text-sm text-white/60">무료 계정으로 에셋을 설치하고 동기화합니다.</p>
+        <h1 className="text-2xl font-black" style={{ color: "var(--text-primary)" }}>MarkVas 시작하기</h1>
+        <p className="text-sm" style={{ color: "var(--text-muted)" }}>무료 계정으로 에셋을 설치하고 동기화합니다.</p>
       </div>
 
-      <form className="rounded-xl border border-slate-200 bg-white p-7 shadow-sm" onSubmit={submit}>
+      <form
+        className="rounded-2xl p-7"
+        style={{
+          background: "rgba(255,255,255,0.05)",
+          border: "1px solid rgba(255,255,255,0.12)",
+          backdropFilter: "blur(20px)",
+          boxShadow: "0 20px 60px rgba(0,0,0,0.4)",
+        }}
+        onSubmit={submit}
+      >
         <div className="space-y-4">
           <Field label="이메일">
             <input
@@ -112,7 +124,8 @@ export function RegisterForm(): JSX.Element {
                 onChange={(e) => setPassword(e.target.value)}
               />
               <button
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                className="absolute right-3 top-1/2 -translate-y-1/2 transition"
+                style={{ color: "var(--text-muted)" }}
                 type="button"
                 onClick={() => setShowPw((v) => !v)}
               >
@@ -122,34 +135,28 @@ export function RegisterForm(): JSX.Element {
 
             {password.length > 0 && (
               <div className="mt-2 space-y-1.5">
-                {/* 강도 바 */}
                 <div className="flex items-center gap-2">
                   <div className="flex flex-1 gap-1">
                     {[1, 2, 3].map((n) => (
                       <div
                         key={n}
-                        className={`h-1 flex-1 rounded-full transition-all ${
-                          n <= strength.level ? strength.color : "bg-slate-200"
-                        }`}
+                        className={`h-1 flex-1 rounded-full transition-all ${n <= strength.level ? strength.color : ""}`}
+                        style={n <= strength.level ? {} : { background: "var(--bg-overlay)" }}
                       />
                     ))}
                   </div>
                   {strength.label && (
-                    <span className={`text-xs font-bold ${
-                      strength.level === 1 ? "text-red-500"
-                      : strength.level === 2 ? "text-yellow-500"
-                      : "text-blue-600"
-                    }`}>
+                    <span className="text-xs font-bold" style={{ color: strength.textColor }}>
                       {strength.label}
                     </span>
                   )}
                 </div>
-                {/* 규칙 체크리스트 */}
                 <div className="flex flex-wrap gap-x-4 gap-y-1">
                   {rules.map((rule) => (
                     <span
                       key={rule.label}
-                      className={`flex items-center gap-1 text-xs ${rule.ok ? "text-blue-600" : "text-slate-400"}`}
+                      className="flex items-center gap-1 text-xs"
+                      style={{ color: rule.ok ? "var(--teal)" : "var(--text-muted)" }}
                     >
                       <span>{rule.ok ? "✓" : "○"}</span>
                       {rule.label}
@@ -164,9 +171,8 @@ export function RegisterForm(): JSX.Element {
             <div className="relative">
               <input
                 autoComplete="new-password"
-                className={`field-input pr-10 ${
-                  pwMismatch ? "border-red-400 focus:border-red-400 focus:ring-red-200" : ""
-                }`}
+                className="field-input pr-10"
+                style={pwMismatch ? { borderColor: "#f87171" } : {}}
                 placeholder="비밀번호 재입력"
                 required
                 type={showConfirm ? "text" : "password"}
@@ -174,7 +180,8 @@ export function RegisterForm(): JSX.Element {
                 onChange={(e) => setConfirmPassword(e.target.value)}
               />
               <button
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                className="absolute right-3 top-1/2 -translate-y-1/2 transition"
+                style={{ color: "var(--text-muted)" }}
                 type="button"
                 onClick={() => setShowConfirm((v) => !v)}
               >
@@ -182,13 +189,13 @@ export function RegisterForm(): JSX.Element {
               </button>
             </div>
             {pwMismatch && (
-              <p className="mt-1.5 text-xs font-semibold text-red-500">비밀번호가 다릅니다.</p>
+              <p className="mt-1.5 text-xs font-semibold" style={{ color: "#f87171" }}>비밀번호가 다릅니다.</p>
             )}
           </Field>
         </div>
 
         {error && (
-          <div className="mt-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-600">
+          <div className="mt-4 rounded-xl px-4 py-3 text-sm font-semibold" style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.25)", color: "#f87171" }}>
             {error}
           </div>
         )}
@@ -202,19 +209,19 @@ export function RegisterForm(): JSX.Element {
           {loading ? "처리 중…" : "계정 만들기"}
         </button>
 
-        <p className="mt-5 text-center text-sm text-slate-500">
+        <p className="mt-5 text-center text-sm" style={{ color: "var(--text-muted)" }}>
           이미 계정이 있나요?{" "}
-          <Link className="font-bold text-blue-600 hover:underline" to={next !== "/" ? `/login?next=${encodeURIComponent(next)}` : "/login"}>
+          <Link className="font-bold hover:underline" style={{ color: "var(--teal)" }} to={next !== "/" ? `/login?next=${encodeURIComponent(next)}` : "/login"}>
             로그인
           </Link>
         </p>
       </form>
 
-      <p className="mt-5 text-center text-xs leading-5 text-slate-400">
+      <p className="mt-5 text-center text-xs leading-5" style={{ color: "var(--text-muted)" }}>
         계정을 만들면{" "}
-        <Link className="underline hover:text-slate-600" to="#">서비스 이용약관</Link>
+        <Link className="underline" to="#">서비스 이용약관</Link>
         {" "}및{" "}
-        <Link className="underline hover:text-slate-600" to="#">개인정보 처리방침</Link>에 동의합니다.
+        <Link className="underline" to="#">개인정보 처리방침</Link>에 동의합니다.
       </p>
     </div>
   );
@@ -223,7 +230,7 @@ export function RegisterForm(): JSX.Element {
 function Field({ label, children }: { label: string; children: React.ReactNode }): JSX.Element {
   return (
     <label className="block">
-      <span className="mb-1.5 block text-sm font-bold text-slate-700">{label}</span>
+      <span className="mb-1.5 block text-sm font-bold" style={{ color: "var(--text-secondary)" }}>{label}</span>
       {children}
     </label>
   );

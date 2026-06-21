@@ -49,50 +49,54 @@ export default function DeveloperAssetsPage(): JSX.Element {
     DRAFT: "초안", IN_REVIEW: "심사중", PUBLISHED: "게시됨", REJECTED: "거절됨",
   };
   const statusColor: Record<string, string> = {
-    DRAFT: "bg-slate-100 text-slate-600",
+    DRAFT:     "bg-slate-100 text-slate-500",
     IN_REVIEW: "bg-yellow-100 text-yellow-700",
     PUBLISHED: "bg-green-100 text-green-700",
     REJECTED:  "bg-red-100 text-red-700",
   };
 
   return (
-    <main>
+    <main style={{ background: "var(--bg-base)" }}>
       <SiteHeader />
-      <section className="border-b border-slate-200 bg-white">
+      <section className="hero-dark" style={{ borderBottom: "1px solid var(--border)" }}>
         <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-8">
           <div>
-            <h1 className="text-3xl font-black">내 에셋</h1>
-            <p className="mt-1 text-sm text-slate-500">등록한 에셋을 관리합니다.</p>
+            <h1 className="text-3xl font-black" style={{ color: "var(--text-primary)" }}>내 에셋</h1>
+            <p className="mt-1 text-sm" style={{ color: "var(--text-secondary)" }}>등록한 에셋을 관리합니다.</p>
           </div>
           <Link className="button" to="/developer/assets/new">새 에셋 등록</Link>
         </div>
       </section>
 
       <div className="mx-auto max-w-4xl px-6 py-8">
-        {loading && <p className="text-slate-500">불러오는 중…</p>}
-        {error   && <p className="text-red-500">{error}</p>}
+        {loading && <p style={{ color: "var(--text-muted)" }}>불러오는 중…</p>}
+        {error   && <p style={{ color: "#f87171" }}>{error}</p>}
         {!loading && !error && assets.length === 0 && (
           <div className="text-center py-16">
-            <p className="text-slate-500 mb-4">등록한 에셋이 없습니다.</p>
+            <p className="mb-4" style={{ color: "var(--text-muted)" }}>등록한 에셋이 없습니다.</p>
             <Link className="button" to="/developer/assets/new">첫 에셋 등록하기</Link>
           </div>
         )}
         {assets.length > 0 && (
           <div className="space-y-3">
             {assets.map((asset) => (
-              <article key={asset.id} className="flex flex-wrap items-start justify-between gap-3 rounded-xl border border-slate-200 bg-white p-4">
+              <article
+                key={asset.id}
+                className="flex flex-wrap items-start justify-between gap-3 rounded-xl p-4"
+                style={{ background: "var(--bg-raised)", border: "1px solid var(--border)" }}
+              >
                 <div className="flex-1 min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-xs font-bold text-slate-400">{typeLabel[asset.type] ?? asset.type}</span>
-                    <p className="font-bold">{asset.title}</p>
+                    <span className="text-xs font-bold" style={{ color: "var(--text-muted)" }}>{typeLabel[asset.type] ?? asset.type}</span>
+                    <p className="font-bold" style={{ color: "var(--text-primary)" }}>{asset.title}</p>
                     <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${statusColor[asset.status ?? ""] ?? "bg-slate-100 text-slate-500"}`}>
                       {statusLabel[asset.status ?? ""] ?? asset.status}
                     </span>
                   </div>
-                  <p className="mt-1 text-xs text-slate-400">
+                  <p className="mt-1 text-xs" style={{ color: "var(--text-muted)" }}>
                     {asset.metadata?.description ?? "설명 없음"}
                   </p>
-                  <p className="mt-1 text-xs text-slate-400">
+                  <p className="mt-1 text-xs" style={{ color: "var(--text-muted)" }}>
                     등록일: {new Date(asset.createdAt).toLocaleDateString("ko-KR")}
                   </p>
                 </div>
@@ -108,7 +112,8 @@ export default function DeveloperAssetsPage(): JSX.Element {
                   )}
                   <Link className="button-secondary text-sm" to={`/assets/${asset.id}`}>보기</Link>
                   <button
-                    className="button-secondary text-sm border-red-200 text-red-600 hover:bg-red-50"
+                    className="button-secondary text-sm"
+                    style={{ borderColor: "rgba(239,68,68,0.4)", color: "#f87171" }}
                     disabled={actionId === asset.id}
                     onClick={() => handleDelete(asset.id)}
                   >

@@ -5,18 +5,18 @@ import { SiteHeader } from "../components/SiteHeader";
 
 export default function CartPage(): JSX.Element {
   return (
-    <main>
+    <main style={{ background: "var(--bg-base)" }}>
       <SiteHeader />
-      <header className="border-b border-line bg-white">
+      <header className="hero-dark" style={{ borderBottom: "1px solid var(--border)" }}>
         <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-5">
-          <h1 className="text-xl font-bold">장바구니</h1>
+          <h1 className="text-xl font-bold" style={{ color: "var(--text-primary)" }}>장바구니</h1>
           <Link className="button-secondary" to="/">
             <ArrowLeft size={16} />
             홈으로
           </Link>
         </div>
       </header>
-      <section className="mx-auto max-w-4xl px-6 py-8">
+      <section className="mx-auto max-w-4xl px-6 py-8" style={{ background: "var(--bg-base)" }}>
         <CartPanel />
       </section>
     </main>
