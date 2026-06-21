@@ -111,6 +111,9 @@ export default function DeveloperAssetsPage(): JSX.Element {
                     </button>
                   )}
                   <Link className="button-secondary text-sm" to={`/assets/${asset.id}`}>보기</Link>
+                  {(asset.status === "DRAFT" || asset.status === "REJECTED") && (
+                    <Link className="button-secondary text-sm" to={`/developer/assets/${asset.id}/edit`}>수정</Link>
+                  )}
                   <button
                     className="button-secondary text-sm"
                     style={{ borderColor: "rgba(239,68,68,0.4)", color: "#f87171" }}

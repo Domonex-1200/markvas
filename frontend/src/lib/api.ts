@@ -142,8 +142,8 @@ export async function approveAsset(assetId: string, accessToken: string): Promis
   return (await api.post<StoreAsset>(`/assets/${assetId}/approve`, undefined, auth(accessToken))).data;
 }
 
-export async function rejectAsset(assetId: string, accessToken: string): Promise<StoreAsset> {
-  return (await api.post<StoreAsset>(`/assets/${assetId}/reject`, undefined, auth(accessToken))).data;
+export async function rejectAsset(assetId: string, accessToken: string, note?: string): Promise<StoreAsset> {
+  return (await api.post<StoreAsset>(`/assets/${assetId}/reject`, note ? { note } : undefined, auth(accessToken))).data;
 }
 
 // ── 인증 ──────────────────────────────────────────────────────────────────

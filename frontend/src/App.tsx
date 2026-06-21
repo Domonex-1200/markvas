@@ -11,6 +11,7 @@ import MePage from "./pages/MePage";
 import DownloadPage from "./pages/DownloadPage";
 import DeveloperNewAssetPage from "./pages/DeveloperNewAssetPage";
 import DeveloperAssetsPage from "./pages/DeveloperAssetsPage";
+import DeveloperEditAssetPage from "./pages/DeveloperEditAssetPage";
 import AdminPage from "./pages/AdminPage";
 import AdminReviewPage from "./pages/AdminReviewPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
@@ -32,6 +33,7 @@ export default function App() {
       {/* 개발자 */}
       <Route path="/developer/assets" element={<DeveloperAssetsPage />} />
       <Route path="/developer/assets/new" element={<DeveloperNewAssetPage />} />
+      <Route path="/developer/assets/:id/edit" element={<DeveloperEditAssetPage />} />
       {/* 관리자 */}
       <Route path="/admin" element={<AdminPage />} />
       <Route path="/admin/review" element={<AdminReviewPage />} />

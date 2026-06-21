@@ -4,6 +4,7 @@ import { Heart, Library, LogOut, ShieldCheck, UploadCloud } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { CurrentUser } from "../types";
 import { getMe } from "../lib/api";
+import { NotificationCenter } from "./NotificationCenter";
 
 export function AuthStatus(): JSX.Element {
   const [user, setUser] = useState<CurrentUser | null>(null);
@@ -49,7 +50,8 @@ export function AuthStatus(): JSX.Element {
           로그인
         </Link>
         <Link
-          className="flex h-8 items-center rounded-md bg-blue-600 px-3.5 text-sm font-bold text-white transition hover:bg-blue-500"
+          className="flex h-8 items-center rounded-md px-3.5 text-sm font-bold transition"
+          style={{ background: "var(--teal)", color: "#000" }}
           to="/register"
         >
           회원가입
@@ -59,8 +61,6 @@ export function AuthStatus(): JSX.Element {
   }
 
   const icon = "grid h-8 w-8 place-items-center rounded-md text-white/60 transition hover:bg-white/10 hover:text-white";
-
-  // 닉네임/이메일 첫 글자로 아바타
   const avatarChar = ((user.nickname ?? user.email) || "?")[0].toUpperCase();
 
   return (
@@ -81,11 +81,16 @@ export function AuthStatus(): JSX.Element {
           <ShieldCheck size={16} />
         </Link>
       )}
+
+      {/* 알림 센터 */}
+      <NotificationCenter />
+
       {/* 프로필 아바타 */}
       <Link
         to="/me"
         title={user.nickname ?? user.email}
-        className="ml-1 grid h-8 w-8 place-items-center rounded-full bg-blue-600 text-xs font-black text-white transition hover:bg-blue-500"
+        className="ml-1 grid h-8 w-8 place-items-center rounded-full text-xs font-black text-black transition"
+        style={{ background: "var(--teal)" }}
       >
         {user.profilePictureUrl ? (
           <img src={user.profilePictureUrl} alt="프로필" className="h-full w-full rounded-full object-cover" />
@@ -93,12 +98,7 @@ export function AuthStatus(): JSX.Element {
           avatarChar
         )}
       </Link>
-      <button
-        className={`${icon} ml-0.5`}
-        title="로그아웃"
-        type="button"
-        onClick={logout}
-      >
+      <button className={`${icon} ml-0.5`} title="로그아웃" type="button" onClick={logout}>
         <LogOut size={16} />
       </button>
     </div>

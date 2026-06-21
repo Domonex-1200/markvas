@@ -1,11 +1,12 @@
 
-import { useState } from "react";
-import { FileText, PackageCheck, Plug, Search, SwatchBook } from "lucide-react";
+import { useState, useMemo } from "react";
+import { ArrowUpDown, FileText, PackageCheck, Plug, Search, SwatchBook } from "lucide-react";
 import type { StoreAsset } from "../types";
 import type { AssetType } from "../types";
 import { AssetCard } from "./AssetCard";
 
 type FilterType = AssetType | "ALL";
+type SortKey = "newest" | "oldest" | "rating" | "name";
 
 const categoryItems: Array<{ type: FilterType; label: string; description: string; icon: JSX.Element }> = [
   { type: "ALL",      label: "전체",     description: "모든 무료 에셋",         icon: <PackageCheck size={18} /> },
@@ -14,12 +15,21 @@ const categoryItems: Array<{ type: FilterType; label: string; description: strin
   { type: "PLUGIN",   label: "플러그인", description: "노트 기능 확장",         icon: <Plug size={18} /> }
 ];
 
-export function AssetFilter({ assets }: { assets: StoreAsset[] }): JSX.Element {
-  const [active, setActive] = useState<FilterType>("ALL");
-  const [query, setQuery] = useState("");
-  const [activeTag, setActiveTag] = useState("");
+const sortOptions: Array<{ key: SortKey; label: string }> = [
+  { key: "newest", label: "최신순" },
+  { key: "oldest", label: "오래된 순" },
+  { key: "rating", label: "평점순" },
+  { key: "name",   label: "이름순" },
+];
 
-  const allTags = [...new Set(assets.flatMap((a) => a.tags ?? []))].sort();
+export function AssetFilter({ assets }: { assets: StoreAsset[] }): JSX.Element {
+  const [active, setActive]     = useState<FilterType>("ALL");
+  const [query, setQuery]       = useState("");
+  const [activeTag, setActiveTag] = useState("");
+  const [sort, setSort]         = useState<SortKey>("newest");
+  const [sortOpen, setSortOpen] = useState(false);
+
+  const allTags = useMemo(() => [...new Set(assets.flatMap((a) => a.tags ?? []))].sort(), [assets]);
 
   const counts: Record<FilterType, number> = {
     ALL:      assets.length,
@@ -28,15 +38,27 @@ export function AssetFilter({ assets }: { assets: StoreAsset[] }): JSX.Element {
     PLUGIN:   assets.filter((a) => a.type === "PLUGIN").length
   };
 
-  const filtered = assets.filter((a) => {
-    const matchType  = active === "ALL" || a.type === active;
-    const q          = query.trim().toLowerCase();
-    const matchQuery = !q || a.title.toLowerCase().includes(q)
-      || (a.metadata.description ?? "").toLowerCase().includes(q)
-      || (a.metadata.summary ?? "").toLowerCase().includes(q);
-    const matchTag   = !activeTag || (a.tags ?? []).includes(activeTag);
-    return matchType && matchQuery && matchTag;
-  });
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    let result = assets.filter((a) => {
+      const matchType  = active === "ALL" || a.type === active;
+      const matchQuery = !q || a.title.toLowerCase().includes(q)
+        || (a.metadata.description ?? "").toLowerCase().includes(q)
+        || (a.metadata.summary ?? "").toLowerCase().includes(q);
+      const matchTag   = !activeTag || (a.tags ?? []).includes(activeTag);
+      return matchType && matchQuery && matchTag;
+    });
+
+    result = [...result].sort((a, b) => {
+      if (sort === "newest") return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      if (sort === "oldest") return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      if (sort === "rating") return (b.avgRating ?? 0) - (a.avgRating ?? 0);
+      if (sort === "name")   return a.title.localeCompare(b.title, "ko");
+      return 0;
+    });
+
+    return result;
+  }, [assets, active, query, activeTag, sort]);
 
   return (
     <>
@@ -66,16 +88,11 @@ export function AssetFilter({ assets }: { assets: StoreAsset[] }): JSX.Element {
             </div>
             <div className="flex items-center justify-between gap-2">
               <h2 className="font-black" style={{ color: "var(--text-primary)" }}>{cat.label}</h2>
-              <span
-                className="rounded-full px-2.5 py-0.5 text-xs font-black"
-                style={{ background: "var(--teal)", color: "#000" }}
-              >
+              <span className="rounded-full px-2.5 py-0.5 text-xs font-black" style={{ background: "var(--teal)", color: "#000" }}>
                 {counts[cat.type]}
               </span>
             </div>
-            <p className="mt-2 text-sm leading-5" style={{ color: "var(--text-secondary)" }}>
-              {cat.description}
-            </p>
+            <p className="mt-2 text-sm leading-5" style={{ color: "var(--text-secondary)" }}>{cat.description}</p>
           </button>
         ))}
       </div>
@@ -111,7 +128,7 @@ export function AssetFilter({ assets }: { assets: StoreAsset[] }): JSX.Element {
         </div>
       )}
 
-      {/* 검색 + 제목 */}
+      {/* 검색 + 정렬 + 제목 */}
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-2xl font-black" style={{ color: "var(--text-primary)" }}>
@@ -121,25 +138,56 @@ export function AssetFilter({ assets }: { assets: StoreAsset[] }): JSX.Element {
             {filtered.length}개 결과
           </p>
         </div>
-        <div
-          className="flex h-11 min-w-72 items-center gap-2 rounded-xl px-3 text-sm focus-within:ring-1"
-          style={{
-            background: "var(--bg-raised)",
-            border: "1px solid var(--border)",
-            color: "var(--text-muted)",
-          }}
-          onFocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = "var(--teal)")}
-          onBlur={(e) => ((e.currentTarget as HTMLElement).style.borderColor = "var(--border)")}
-        >
-          <Search size={16} />
-          <input
-            className="flex-1 bg-transparent outline-none"
-            style={{ color: "var(--text-primary)" }}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="에셋 검색"
-            type="text"
-            value={query}
-          />
+        <div className="flex items-center gap-2">
+          {/* 검색 */}
+          <div
+            className="flex h-11 min-w-56 items-center gap-2 rounded-xl px-3 text-sm"
+            style={{ background: "var(--bg-raised)", border: "1px solid var(--border)", color: "var(--text-muted)" }}
+            onFocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = "var(--teal)")}
+            onBlur={(e) => ((e.currentTarget as HTMLElement).style.borderColor = "var(--border)")}
+          >
+            <Search size={16} />
+            <input
+              className="flex-1 bg-transparent outline-none"
+              style={{ color: "var(--text-primary)" }}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="에셋 검색"
+              type="text"
+              value={query}
+            />
+          </div>
+          {/* 정렬 */}
+          <div className="relative">
+            <button
+              className="flex h-11 items-center gap-2 rounded-xl px-3 text-sm font-semibold"
+              style={{ background: "var(--bg-raised)", border: "1px solid var(--border)", color: "var(--text-secondary)" }}
+              onClick={() => setSortOpen(v => !v)}
+              type="button"
+            >
+              <ArrowUpDown size={14} />
+              {sortOptions.find(o => o.key === sort)?.label}
+            </button>
+            {sortOpen && (
+              <div
+                className="absolute right-0 top-full z-10 mt-1 w-32 overflow-hidden rounded-xl shadow-2xl"
+                style={{ background: "var(--bg-overlay)", border: "1px solid var(--border)" }}
+              >
+                {sortOptions.map(opt => (
+                  <button
+                    key={opt.key}
+                    className="w-full px-4 py-2.5 text-left text-sm font-medium transition"
+                    style={{ color: sort === opt.key ? "var(--teal)" : "var(--text-secondary)" }}
+                    onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.05)")}
+                    onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+                    onClick={() => { setSort(opt.key); setSortOpen(false); }}
+                    type="button"
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -154,6 +202,11 @@ export function AssetFilter({ assets }: { assets: StoreAsset[] }): JSX.Element {
         <div className="py-20 text-center" style={{ color: "var(--text-muted)" }}>
           <PackageCheck className="mx-auto mb-3 opacity-30" size={40} />
           <p className="font-black">결과가 없습니다</p>
+          {query && (
+            <button className="mt-3 text-sm underline" style={{ color: "var(--teal)" }} onClick={() => setQuery("")}>
+              검색어 지우기
+            </button>
+          )}
         </div>
       )}
     </>
