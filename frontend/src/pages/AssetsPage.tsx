@@ -13,7 +13,7 @@ export default function AssetsPage(): JSX.Element {
 
   useEffect(() => {
     getAssets()
-      .then(setAssets)
+      .then((d) => setAssets(Array.isArray(d) ? d : []))
       .catch(() => setError("에셋 목록을 불러오지 못했습니다. 서버 연결을 확인하세요."))
       .finally(() => setLoading(false));
   }, []);

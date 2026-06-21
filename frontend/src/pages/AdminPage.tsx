@@ -231,7 +231,7 @@ function UsersSection({ token }: { token: string }) {
   const [changingId, setChangingId] = useState<string | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
 
-  useEffect(() => { getAllUsers(token).then(setUsers).finally(() => setLoading(false)); }, [token]);
+  useEffect(() => { getAllUsers(token).then((d) => setUsers(Array.isArray(d) ? d : [])).finally(() => setLoading(false)); }, [token]);
 
   const filtered = users.filter(u => {
     const matchRole = roleFilter === "ALL" || u.role === roleFilter;
@@ -375,7 +375,7 @@ function ApplicationsSection({ token }: { token: string }) {
 
   useEffect(() => {
     setLoading(true);
-    getAdminDeveloperApplications(token, filter === "PENDING" ? "PENDING" : undefined).then(setApps).finally(() => setLoading(false));
+    getAdminDeveloperApplications(token, filter === "PENDING" ? "PENDING" : undefined).then((d) => setApps(Array.isArray(d) ? d : [])).finally(() => setLoading(false));
   }, [token, filter]);
 
   async function review(appId: string, approve: boolean) {
@@ -444,7 +444,7 @@ function AssetsSection({ token }: { token: string }) {
   const [rejectTarget, setRejectTarget] = useState<StoreAsset | null>(null);
   const [rejectNote, setRejectNote]     = useState("");
 
-  useEffect(() => { getReviewAssets(token).then(setAssets).finally(() => setLoading(false)); }, [token]);
+  useEffect(() => { getReviewAssets(token).then((d) => setAssets(Array.isArray(d) ? d : [])).finally(() => setLoading(false)); }, [token]);
 
   const filtered = assets.filter(a => {
     const matchStatus = statusFilter === "ALL" || a.status === statusFilter;

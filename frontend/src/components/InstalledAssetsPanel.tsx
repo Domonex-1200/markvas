@@ -20,7 +20,7 @@ export function InstalledAssetsPanel(): JSX.Element {
     }
 
     getInstalledAssets(accessToken)
-      .then(setAssets)
+      .then((d) => setAssets(Array.isArray(d) ? d : []))
       .catch(() => setMessage("설치 에셋을 불러오지 못했습니다."));
   }, []);
 

@@ -20,7 +20,7 @@ export default function DeveloperAssetsPage(): JSX.Element {
       return;
     }
     getMyAssets(token)
-      .then(setAssets)
+      .then((d) => setAssets(Array.isArray(d) ? d : []))
       .catch(() => setError("에셋 목록을 불러오지 못했습니다."))
       .finally(() => setLoading(false));
   }, [token, role, navigate]);

@@ -15,7 +15,7 @@ export function WishlistPanel(): JSX.Element {
       setMessage("로그인이 필요합니다.");
       return;
     }
-    getWishlist(token).then(setItems).catch(() => setMessage("찜 목록을 불러오지 못했습니다."));
+    getWishlist(token).then((d) => setItems(Array.isArray(d) ? d : [])).catch(() => setMessage("찜 목록을 불러오지 못했습니다."));
   }, []);
 
   async function remove(assetId: string): Promise<void> {

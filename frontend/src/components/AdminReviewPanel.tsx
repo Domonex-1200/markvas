@@ -15,7 +15,7 @@ export function AdminReviewPanel(): JSX.Element {
       setMessage("관리자 로그인이 필요합니다.");
       return;
     }
-    getReviewAssets(token).then(setAssets).catch(() => setMessage("심사 목록을 불러오지 못했습니다."));
+    getReviewAssets(token).then((d) => setAssets(Array.isArray(d) ? d : [])).catch(() => setMessage("심사 목록을 불러오지 못했습니다."));
   }, []);
 
   async function update(assetId: string, action: "approve" | "reject"): Promise<void> {

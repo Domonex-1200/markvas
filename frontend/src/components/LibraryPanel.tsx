@@ -16,7 +16,9 @@ export function LibraryPanel(): JSX.Element {
 
   useEffect(() => {
     if (!token) { setMessage("로그인이 필요합니다."); return; }
-    getLibrary(token).then(setItems).catch(() => setMessage("라이브러리를 불러오지 못했습니다."));
+    getLibrary(token)
+      .then((data) => setItems(Array.isArray(data) ? data : []))
+      .catch(() => setMessage("라이브러리를 불러오지 못했습니다."));
   }, [token]);
 
   async function activate(assetId: string) {

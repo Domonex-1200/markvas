@@ -107,7 +107,7 @@ export function NotificationCenter(): JSX.Element {
 
   useEffect(() => {
     if (!token) return;
-    pollNotifications(token).then(setNotifs).catch(() => {});
+    pollNotifications(token).then((d) => setNotifs(Array.isArray(d) ? d : [])).catch(() => {});
   }, [token]);
 
   // 외부 클릭 닫기

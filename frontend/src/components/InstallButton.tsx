@@ -19,8 +19,9 @@ export function InstallButton({ assetId, priceCents = 0 }: Props): JSX.Element {
     const token = window.localStorage.getItem("accessToken");
     if (!token) return;
     getLibrary(token)
-      .then((items) => {
-        const found = items.find((i) => i.asset.id === assetId);
+      .then((data) => {
+        if (!Array.isArray(data)) return;
+        const found = data.find((i) => i.asset.id === assetId);
         if (found) {
           setLibraryStatus(found.status);
           setState(found.status === "ACTIVE" ? "active" : "inactive");
