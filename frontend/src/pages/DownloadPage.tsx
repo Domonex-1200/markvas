@@ -8,12 +8,12 @@ const FALLBACK_RELEASE: AppRelease = {
   id: "fallback",
   platform: "windows",
   channel: "stable",
-  version: "0.1.0",
-  downloadUrl: "https://d36v39m4b0nmuu.cloudfront.net/releases/MarkVas-Setup-0.1.0.exe",
-  releaseNotes: "MarkVas 첫 번째 공식 릴리즈입니다.",
+  version: "0.2.0",
+  downloadUrl: "https://d36v39m4b0nmuu.cloudfront.net/releases/MarkVas%20Setup%200.2.0.exe",
+  releaseNotes: "설치된 에셋 관리 기능 추가 (테마·템플릿·플러그인 통합 관리 및 삭제 지원).",
   checksum: "",
   signature: undefined,
-  publishedAt: "2026-06-01T00:00:00Z",
+  publishedAt: "2026-06-22T00:00:00Z",
 };
 
 export default function DownloadPage(): JSX.Element {
