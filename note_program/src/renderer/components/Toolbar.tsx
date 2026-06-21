@@ -1,5 +1,5 @@
 import type { MarkdownDocument } from "@markdown-canvas/shared";
-import { FileJson2, FileType2, History, LogIn, LogOut, Network, Package, PanelsTopLeft, Pin, Plug, RefreshCcw, Settings2, Trash2 } from "lucide-react";
+import { FileJson2, FileType2, History, LogIn, LogOut, Network, Package, PanelsTopLeft, Pin, RefreshCcw, Settings2, Trash2 } from "lucide-react";
 
 interface AuthUser {
   id: string;
@@ -16,7 +16,6 @@ interface ToolbarProps {
   authUser: AuthUser | null;
   onSyncAssets: () => Promise<void>;
   onManageTemplates: () => Promise<void>;
-  onManagePlugins: () => Promise<void>;
   onManageAssets: () => void;
   onOpenTrash: () => Promise<void>;
   onTogglePin: () => void;
@@ -37,7 +36,6 @@ export function Toolbar({
   authUser,
   onSyncAssets,
   onManageTemplates,
-  onManagePlugins,
   onManageAssets,
   onOpenTrash,
   onTogglePin,
@@ -67,9 +65,6 @@ export function Toolbar({
       </button>
       <button className="icon-button" title="템플릿 관리" onClick={onManageTemplates} disabled={!canManageTemplates}>
         <PanelsTopLeft size={18} />
-      </button>
-      <button className="icon-button" title="플러그인 관리" onClick={onManagePlugins}>
-        <Plug size={18} />
       </button>
       <button className="icon-button" title="에셋 관리" onClick={onManageAssets}>
         <Package size={18} />

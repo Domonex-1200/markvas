@@ -5,7 +5,6 @@ import { CommandPalette, type CommandPaletteItem } from "./components/CommandPal
 import { FileTree } from "./components/FileTree";
 import { MarkdownEditor } from "./components/MarkdownEditor";
 import { NoteInfoPanel } from "./components/NoteInfoPanel";
-import { PluginManagerModal } from "./components/PluginManagerModal";
 import { QuickAccessPanel } from "./components/QuickAccessPanel";
 import { TemplateManagerModal } from "./components/TemplateManagerModal";
 import { Toolbar } from "./components/Toolbar";
@@ -75,7 +74,6 @@ export default function App(): JSX.Element {
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isTemplateManagerOpen, setIsTemplateManagerOpen] = useState(false);
-  const [isPluginManagerOpen, setIsPluginManagerOpen] = useState(false);
   const [isTrashOpen, setIsTrashOpen] = useState(false);
   const [trashEntries, setTrashEntries] = useState<TrashEntry[]>([]);
   const [isTrashLoading, setIsTrashLoading] = useState(false);
@@ -131,7 +129,6 @@ export default function App(): JSX.Element {
         refreshTree,
         exportCurrentDocumentPdf,
         openTemplateManager,
-        openPluginManager,
         openTrash,
         toggleCurrentDocumentPin,
         syncAssets,
@@ -529,12 +526,7 @@ export default function App(): JSX.Element {
     setIsTemplateManagerOpen(true);
   }
 
-  async function openPluginManager(): Promise<void> {
-    await refreshPlugins();
-    setIsPluginManagerOpen(true);
-  }
-
-  function toggleCurrentDocumentPin(): void {
+function toggleCurrentDocumentPin(): void {
     if (!workspacePath || !document) return;
     const nextState = navigationState.pinnedPaths.includes(document.path)
       ? { ...navigationState, pinnedPaths: navigationState.pinnedPaths.filter((path) => path !== document.path) }
@@ -1079,7 +1071,6 @@ export default function App(): JSX.Element {
           authUser={authUser}
           onSyncAssets={syncAssets}
           onManageTemplates={openTemplateManager}
-          onManagePlugins={openPluginManager}
           onManageAssets={handleManageAssets}
           onOpenTrash={openTrash}
           onTogglePin={toggleCurrentDocumentPin}
@@ -1145,20 +1136,6 @@ export default function App(): JSX.Element {
         onDelete={deleteTemplate}
       />
 
-      <PluginManagerModal
-        isOpen={isPluginManagerOpen}
-        plugins={plugins}
-        onClose={() => setIsPluginManagerOpen(false)}
-        onRunCommand={runPluginCommand}
-        onDeleteAsset={async (assetId) => {
-          await window.markdownCanvas.uninstallAssetLocal(assetId);
-          const auth = await window.markdownCanvas.getAuth?.();
-          if (auth?.accessToken) {
-            await window.markdownCanvas.removeAssetFromLibrary?.(assetId, auth.accessToken).catch(() => {});
-          }
-        }}
-        onApplyTheme={setThemeCss}
-      />
 
       <TrashModal
         isOpen={isTrashOpen}
@@ -1487,7 +1464,6 @@ interface CommandPaletteContext {
   refreshTree: () => Promise<void>;
   exportCurrentDocumentPdf: () => Promise<void>;
   openTemplateManager: () => Promise<void>;
-  openPluginManager: () => Promise<void>;
   openTrash: () => Promise<void>;
   toggleCurrentDocumentPin: () => void;
   syncAssets: () => Promise<void>;
@@ -1555,13 +1531,6 @@ function buildCommandPaletteItems(context: CommandPaletteContext): CommandPalett
         title: "템플릿 관리",
         subtitle: "워크스페이스 노트 양식 편집",
         onSelect: run(context.openTemplateManager)
-      },
-      {
-        id: "command:manage-plugins",
-        kind: "command",
-        title: "플러그인 관리",
-        subtitle: "설치된 플러그인 권한과 명령 확인",
-        onSelect: run(context.openPluginManager)
       },
       {
         id: "command:open-trash",
