@@ -65,15 +65,24 @@ export function SiteHeader(): JSX.Element {
   }
 
   return (
-    <header className="sticky top-0 z-30 border-b border-white/10 bg-[#080b22]/95 backdrop-blur-xl">
+    <header
+      className="sticky top-0 z-30 backdrop-blur-xl"
+      style={{ background: "rgba(7,8,15,0.88)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}
+    >
       <div className="mx-auto grid h-14 max-w-[1400px] grid-cols-[1fr_auto_1fr] items-center px-5">
         {/* Logo */}
         <Link
-          className="grid h-8 w-8 place-items-center rounded-lg bg-blue-600 text-white shadow-sm shadow-blue-600/40 transition hover:bg-blue-500"
+          className="inline-flex items-center gap-2.5 transition-opacity hover:opacity-80"
           to="/"
           title="MarkVas"
         >
-          <GalleryVerticalEnd size={16} />
+          <span
+            className="grid h-8 w-8 place-items-center rounded-lg text-black"
+            style={{ background: "var(--teal)" }}
+          >
+            <GalleryVerticalEnd size={15} />
+          </span>
+          <span className="hidden text-sm font-black sm:block" style={{ color: "var(--text-primary)" }}>MarkVas</span>
         </Link>
 
         {/* Nav */}
@@ -87,7 +96,10 @@ export function SiteHeader(): JSX.Element {
                 onMouseLeave={scheduleClose}
               >
                 <button
-                  className="flex h-9 items-center gap-1 rounded-md px-3 text-sm font-medium text-white/70 transition hover:bg-white/10 hover:text-white"
+                  className="flex h-9 items-center gap-1 rounded-md px-3 text-sm font-medium transition"
+                  style={{ color: "var(--text-secondary)" }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--text-primary)"; (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.06)"; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--text-secondary)"; (e.currentTarget as HTMLElement).style.background = "transparent"; }}
                   type="button"
                 >
                   {item.label}
@@ -99,7 +111,8 @@ export function SiteHeader(): JSX.Element {
 
                 {openMenu === item.label && (
                   <div
-                    className="absolute left-1/2 top-full mt-2 w-56 -translate-x-1/2 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/10"
+                    className="absolute left-1/2 top-full mt-2 w-56 -translate-x-1/2 overflow-hidden rounded-xl shadow-2xl"
+                    style={{ background: "var(--bg-overlay)", border: "1px solid var(--border-hover)", boxShadow: "0 16px 40px rgba(0,0,0,0.5)" }}
                     onMouseEnter={() => openDropdown(item.label)}
                     onMouseLeave={scheduleClose}
                   >
@@ -107,13 +120,16 @@ export function SiteHeader(): JSX.Element {
                       {item.dropdown.map((d) => (
                         <button
                           key={d.label}
-                          className="flex w-full flex-col rounded-lg px-3.5 py-2.5 text-left transition hover:bg-slate-50"
+                          className="flex w-full flex-col rounded-lg px-3.5 py-2.5 text-left transition"
+                          style={{ color: "var(--text-primary)" }}
+                          onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.06)")}
+                          onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "transparent")}
                           onClick={() => handleNavClick(d)}
                         >
-                          <span className="text-[13px] font-semibold text-slate-900">
+                          <span className="text-[13px] font-semibold" style={{ color: "var(--text-primary)" }}>
                             {d.label}
                           </span>
-                          <span className="mt-0.5 text-xs text-slate-400">{d.description}</span>
+                          <span className="mt-0.5 text-xs" style={{ color: "var(--text-muted)" }}>{d.description}</span>
                         </button>
                       ))}
                     </div>
@@ -122,7 +138,8 @@ export function SiteHeader(): JSX.Element {
               </div>
             ) : (
               <Link
-                className="flex h-9 items-center rounded-md px-3 text-sm font-medium text-white/70 transition hover:bg-white/10 hover:text-white"
+                className="flex h-9 items-center rounded-md px-3 text-sm font-medium transition"
+                style={{ color: "var(--text-secondary)" }}
                 to={item.href ?? "#"}
                 key={item.label}
               >

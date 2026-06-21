@@ -2,77 +2,166 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Perplexity-inspired color tokens ──────────────────────────────────── */
 :root {
-  color-scheme: light;
+  color-scheme: dark;
+
+  /* backgrounds */
+  --bg-base:    #07080f;
+  --bg-surface: #111118;
+  --bg-raised:  #18181f;
+  --bg-overlay: #1e1e28;
+
+  /* brand */
+  --teal:       #20c5bc;
+  --teal-dim:   #17928c;
+  --teal-glow:  rgba(32,197,188,0.18);
+  --purple:     #7c5cfc;
+  --purple-dim: #5c3fd4;
+  --purple-glow:rgba(124,92,252,0.15);
+
+  /* text */
+  --text-primary:   #f0f0f8;
+  --text-secondary: #9090aa;
+  --text-muted:     #55556a;
+
+  /* borders */
+  --border:       rgba(255,255,255,0.07);
+  --border-hover: rgba(255,255,255,0.14);
+
+  /* radius */
+  --r-card: 16px;
+  --r-btn:  10px;
+  --r-pill: 999px;
 }
 
 body {
   margin: 0;
-  background: #f5f7fb;
-  color: #182033;
-  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR", sans-serif;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+               "Segoe UI", "Noto Sans KR", sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
 ::selection {
-  background: #2563eb;
-  color: #ffffff;
+  background: var(--teal);
+  color: #000;
 }
 
+/* ── 버튼 ───────────────────────────────────────────────────────────────── */
 .button {
-  @apply inline-flex h-10 items-center justify-center gap-2 rounded-md border border-blue-600 bg-blue-600 px-4 text-sm font-bold text-white transition hover:border-blue-700 hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50;
+  @apply inline-flex h-10 items-center justify-center gap-2 rounded-[10px] border border-transparent px-4 text-sm font-bold transition-all;
+  background: var(--teal);
+  color: #000;
 }
+.button:hover { background: #29d9cf; transform: translateY(-1px); }
+.button:active { transform: none; }
+.button:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
 
 .button-secondary {
-  @apply inline-flex h-10 items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-4 text-sm font-bold text-slate-900 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700;
+  @apply inline-flex h-10 items-center justify-center gap-2 rounded-[10px] px-4 text-sm font-bold transition-all;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+}
+.button-secondary:hover {
+  border-color: var(--border-hover);
+  background: var(--bg-overlay);
+  transform: translateY(-1px);
 }
 
 .button-dark {
-  @apply inline-flex h-11 items-center justify-center gap-2 rounded-md border border-white/15 bg-white/10 px-5 text-sm font-black text-white transition hover:border-white/30 hover:bg-white/15;
+  @apply inline-flex h-11 items-center justify-center gap-2 rounded-[10px] px-5 text-sm font-black transition-all;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: var(--text-primary);
+}
+.button-dark:hover {
+  background: rgba(255,255,255,0.13);
+  border-color: rgba(255,255,255,0.22);
 }
 
 .button-light {
-  @apply inline-flex h-11 items-center justify-center gap-2 rounded-md border border-white bg-white px-5 text-sm font-black text-slate-950 transition hover:bg-blue-50 hover:text-blue-700;
+  @apply inline-flex h-11 items-center justify-center gap-2 rounded-[10px] px-5 text-sm font-black transition-all;
+  background: var(--teal);
+  border: 1px solid var(--teal);
+  color: #000;
 }
+.button-light:hover { background: #29d9cf; }
 
 .button-header-light {
-  @apply inline-flex h-10 items-center justify-center rounded-full border border-white bg-white px-5 text-sm font-black text-slate-950 transition hover:bg-blue-50 hover:text-blue-700;
+  @apply inline-flex h-9 items-center justify-center rounded-[10px] border px-4 text-sm font-bold transition-all;
+  border-color: var(--border-hover);
+  background: var(--bg-raised);
+  color: var(--text-primary);
 }
+.button-header-light:hover { background: var(--bg-overlay); }
 
 .button-header-blue {
-  @apply h-10 items-center justify-center rounded-full border border-blue-500 bg-blue-500 px-5 text-sm font-black text-white transition hover:border-blue-400 hover:bg-blue-400;
+  @apply inline-flex h-9 items-center justify-center rounded-[10px] px-4 text-sm font-bold transition-all;
+  background: var(--teal);
+  color: #000;
 }
+.button-header-blue:hover { background: #29d9cf; }
 
 .button-header-ghost {
-  @apply inline-flex h-10 items-center justify-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 text-sm font-bold text-white transition hover:border-white/30 hover:bg-white/15;
+  @apply inline-flex h-9 items-center justify-center gap-2 rounded-[10px] px-3 text-sm font-bold transition-all;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.10);
+  color: var(--text-primary);
 }
+.button-header-ghost:hover { background: rgba(255,255,255,0.12); }
 
 .icon-button {
-  @apply grid h-10 w-10 place-items-center rounded-md border border-slate-200 bg-white text-slate-900 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-50;
+  @apply grid h-10 w-10 place-items-center rounded-[10px] transition-all;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
 }
+.icon-button:hover { border-color: var(--border-hover); background: var(--bg-overlay); }
+.icon-button:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .icon-button-dark {
-  @apply grid h-10 w-10 place-items-center rounded-full border border-white/15 bg-white/10 text-white transition hover:border-white/30 hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-50;
+  @apply grid h-10 w-10 place-items-center rounded-full transition-all;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.10);
+  color: var(--text-primary);
 }
+.icon-button-dark:hover { background: rgba(255,255,255,0.12); }
 
-.hero-dark {
-  background:
-    linear-gradient(120deg, rgba(37, 99, 235, 0.28), transparent 42%),
-    linear-gradient(180deg, #080b22 0%, #10183f 100%);
-}
-
+/* ── 카드 / 서피스 ─────────────────────────────────────────────────────── */
 .surface-card {
-  @apply rounded-lg border border-slate-200 bg-white shadow-sm shadow-slate-200/60;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-card);
 }
 
 .dark-card {
-  @apply rounded-lg border border-white/10 bg-white/10 shadow-xl shadow-slate-950/20;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: var(--r-card);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.35);
 }
 
+/* ── 입력 ───────────────────────────────────────────────────────────────── */
 .field-input {
-  @apply h-11 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100;
+  @apply h-11 w-full rounded-[10px] px-3 text-sm outline-none transition-all placeholder:opacity-40;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+}
+.field-input:focus {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px var(--teal-glow);
 }
 
-/* ── 애니메이션 키프레임 ─────────────────────────────────────────────── */
+/* ── 섹션 배경 ─────────────────────────────────────────────────────────── */
+.hero-dark {
+  background: linear-gradient(160deg, #07080f 0%, #0c0e1e 55%, #0f1228 100%);
+}
+
+/* ── 애니메이션 키프레임 ────────────────────────────────────────────────── */
 @keyframes fade-up {
   from { opacity: 0; transform: translateY(28px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -90,76 +179,61 @@ body {
   100% { background-position:  200% center; }
 }
 @keyframes glow-pulse {
-  0%, 100% { opacity: 0.18; transform: scale(1); }
-  50%       { opacity: 0.28; transform: scale(1.08); }
+  0%, 100% { opacity: 0.16; transform: scale(1); }
+  50%       { opacity: 0.26; transform: scale(1.06); }
+}
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.93); }
+  to   { opacity: 1; transform: scale(1); }
 }
 @keyframes slide-in-left {
-  from { opacity: 0; transform: translateX(-32px); }
+  from { opacity: 0; transform: translateX(-28px); }
   to   { opacity: 1; transform: translateX(0); }
 }
 @keyframes slide-in-right {
-  from { opacity: 0; transform: translateX(32px); }
+  from { opacity: 0; transform: translateX(28px); }
   to   { opacity: 1; transform: translateX(0); }
 }
-@keyframes scale-in {
-  from { opacity: 0; transform: scale(0.92); }
-  to   { opacity: 1; transform: scale(1); }
-}
-@keyframes border-spin {
-  to { --angle: 360deg; }
-}
-@keyframes count-up {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
 
-/* ── 유틸 클래스 ──────────────────────────────────────────────────────── */
-.animate-fade-up   { animation: fade-up  0.55s cubic-bezier(.22,.68,0,1.2) both; }
+/* ── 유틸 ──────────────────────────────────────────────────────────────── */
+.animate-fade-up   { animation: fade-up  0.6s cubic-bezier(.22,.68,0,1.2) both; }
 .animate-fade-in   { animation: fade-in  0.5s ease both; }
 .animate-float     { animation: float    5s ease-in-out infinite; }
-.animate-scale-in  { animation: scale-in 0.5s cubic-bezier(.22,.68,0,1.2) both; }
-.animate-slide-left  { animation: slide-in-left  0.55s cubic-bezier(.22,.68,0,1.2) both; }
-.animate-slide-right { animation: slide-in-right 0.55s cubic-bezier(.22,.68,0,1.2) both; }
+.animate-scale-in  { animation: scale-in 0.55s cubic-bezier(.22,.68,0,1.2) both; }
 
 .delay-100 { animation-delay: 0.10s; }
-.delay-150 { animation-delay: 0.15s; }
 .delay-200 { animation-delay: 0.20s; }
 .delay-300 { animation-delay: 0.30s; }
 .delay-400 { animation-delay: 0.40s; }
 .delay-500 { animation-delay: 0.50s; }
 .delay-600 { animation-delay: 0.60s; }
-.delay-700 { animation-delay: 0.70s; }
-.delay-800 { animation-delay: 0.80s; }
 
-/* 스크롤 트리거 — JS가 .in-view 를 붙여줌 */
+/* 스크롤 reveal */
 .reveal {
   opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.6s cubic-bezier(.22,.68,0,1.2),
-              transform 0.6s cubic-bezier(.22,.68,0,1.2);
+  transform: translateY(22px);
+  transition: opacity 0.65s cubic-bezier(.22,.68,0,1.2),
+              transform 0.65s cubic-bezier(.22,.68,0,1.2);
 }
-.reveal.stagger-1 { transition-delay: 0.05s; }
-.reveal.stagger-2 { transition-delay: 0.12s; }
-.reveal.stagger-3 { transition-delay: 0.20s; }
-.reveal.stagger-4 { transition-delay: 0.28s; }
-.reveal.stagger-5 { transition-delay: 0.36s; }
-.reveal.stagger-6 { transition-delay: 0.44s; }
-.reveal.in-view {
-  opacity: 1;
-  transform: translateY(0);
-}
+.reveal.stagger-1 { transition-delay: 0.06s; }
+.reveal.stagger-2 { transition-delay: 0.13s; }
+.reveal.stagger-3 { transition-delay: 0.21s; }
+.reveal.stagger-4 { transition-delay: 0.30s; }
+.reveal.stagger-5 { transition-delay: 0.40s; }
+.reveal.stagger-6 { transition-delay: 0.50s; }
+.reveal.in-view   { opacity: 1; transform: translateY(0); }
 
-/* 그라디언트 shimmer 텍스트 */
+/* Perplexity 그라디언트 텍스트 */
 .text-gradient {
-  background: linear-gradient(90deg, #60a5fa 0%, #a78bfa 40%, #60a5fa 80%);
+  background: linear-gradient(90deg, #20c5bc 0%, #7c5cfc 50%, #20c5bc 100%);
   background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: shimmer 3.5s linear infinite;
+  animation: shimmer 4s linear infinite;
 }
 
-/* 카드 호버 shine 효과 */
+/* 카드 hover shine */
 .shine-card {
   position: relative;
   overflow: hidden;
@@ -168,18 +242,27 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.07) 50%, transparent 60%);
+  background: linear-gradient(105deg, transparent 38%, rgba(32,197,188,0.06) 50%, transparent 62%);
+  transform: translateX(-100%);
+  transition: transform 0.55s ease;
+}
+.shine-card:hover::after { transform: translateX(100%); }
+
+/* glow 배경 orbs */
+.glow-animate       { animation: glow-pulse 7s ease-in-out infinite; }
+.glow-animate-delay { animation: glow-pulse 7s ease-in-out 3.5s infinite; }
+
+/* 버튼 shine sweep */
+.btn-shine {
+  position: relative;
+  overflow: hidden;
+}
+.btn-shine::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.18) 50%, transparent 60%);
   transform: translateX(-100%);
   transition: transform 0.5s ease;
 }
-.shine-card:hover::after {
-  transform: translateX(100%);
-}
-
-/* glow 배경 애니메이션 */
-.glow-animate {
-  animation: glow-pulse 6s ease-in-out infinite;
-}
-.glow-animate-delay {
-  animation: glow-pulse 6s ease-in-out 3s infinite;
-}
+.btn-shine:hover::after { transform: translateX(100%); }
