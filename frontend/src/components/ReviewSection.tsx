@@ -39,8 +39,13 @@ export function ReviewSection({ assetId }: Props): JSX.Element {
       setMyRating(0);
       setMyBody("");
     } catch (e: unknown) {
-      const err = e as { response?: { status?: number } };
-      setMsg(err?.response?.status === 409 ? "이미 리뷰를 작성하셨습니다." : "작성에 실패했습니다.");
+      const err = e as { response?: { status?: number; data?: { message?: string } } };
+      if (err?.response?.status === 409) {
+        setMsg("이미 리뷰를 작성하셨습니다.");
+      } else {
+        const detail = err?.response?.data?.message;
+        setMsg(detail ? `작성 실패: ${detail}` : "작성에 실패했습니다.");
+      }
     } finally {
       setSubmitting(false);
     }

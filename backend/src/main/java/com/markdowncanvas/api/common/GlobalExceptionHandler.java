@@ -1,5 +1,7 @@
 package com.markdowncanvas.api.common;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -15,6 +17,8 @@ import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     // ResponseStatusException (404, 403, 401, 409 등)
     @ExceptionHandler(ResponseStatusException.class)
@@ -43,8 +47,9 @@ public class GlobalExceptionHandler {
     // 그 외 예상치 못한 서버 에러
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneral(Exception ex) {
+        log.error("Unhandled exception: {}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorResponse(500, "Internal server error."));
+                .body(new ErrorResponse(500, ex.getMessage() != null ? ex.getMessage() : "Internal server error."));
     }
 
     public record ErrorResponse(int status, String message, String timestamp) {

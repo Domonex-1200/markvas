@@ -46,7 +46,7 @@ public class AssetReviewService {
         r.setRating(dto.getRating());
         r.setBody(dto.getBody());
         AssetReview saved = reviews.save(r);
-        saved.setUser(users.getReferenceById(userId));
+        users.findById(userId).ifPresent(saved::setUser);
         return AssetReviewDto.ReviewResponse.from(saved);
     }
 
