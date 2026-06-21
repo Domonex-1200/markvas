@@ -20,25 +20,29 @@ export function LibraryPanel(): JSX.Element {
 
   return (
     <section className="grid gap-3">
-      {message && <p className="rounded border border-line bg-white p-4 text-sm text-slate-600">{message}</p>}
+      {message && (
+        <p className="rounded-xl p-4 text-sm" style={{ background: "var(--bg-raised)", border: "1px solid var(--border)", color: "var(--text-secondary)" }}>
+          {message}
+        </p>
+      )}
       {items.map(({ asset, source, grantedAt }) => (
-        <article key={asset.id} className="rounded border border-line bg-white p-5 shadow-sm">
+        <article key={asset.id} className="rounded-xl p-5" style={{ background: "var(--bg-raised)", border: "1px solid var(--border)" }}>
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-xs font-semibold text-slate-500">{asset.type}</p>
-              <Link className="mt-1 block font-bold hover:text-accent" to={`/assets/${asset.id}`}>
+              <p className="text-xs font-semibold" style={{ color: "var(--text-muted)" }}>{asset.type}</p>
+              <Link className="mt-1 block font-bold hover:underline" style={{ color: "var(--text-primary)" }} to={`/assets/${asset.id}`}>
                 {asset.title}
               </Link>
-              <p className="mt-2 text-sm text-slate-600">{asset.metadata.summary ?? asset.metadata.description}</p>
-              <p className="mt-3 text-xs text-slate-500">권한: {source} · {new Date(grantedAt).toLocaleString()}</p>
+              <p className="mt-2 text-sm" style={{ color: "var(--text-secondary)" }}>{asset.metadata.summary ?? asset.metadata.description}</p>
+              <p className="mt-3 text-xs" style={{ color: "var(--text-muted)" }}>권한: {source} · {new Date(grantedAt).toLocaleString()}</p>
             </div>
-            <span className="rounded bg-teal-50 px-3 py-2 text-sm font-semibold text-accent">이용 가능</span>
+            <span className="rounded-full px-3 py-1.5 text-sm font-semibold" style={{ background: "rgba(32,197,188,0.12)", color: "var(--teal)" }}>이용 가능</span>
           </div>
         </article>
       ))}
       {items.length === 0 && !message && (
-        <div className="rounded border border-line bg-white p-8 text-center text-sm text-slate-500">
-          <Library className="mx-auto mb-3" size={24} />
+        <div className="rounded-xl p-8 text-center text-sm" style={{ background: "var(--bg-raised)", border: "1px solid var(--border)", color: "var(--text-muted)" }}>
+          <Library className="mx-auto mb-3" size={24} style={{ color: "var(--text-muted)" }} />
           라이브러리에 추가된 에셋이 없습니다.
         </div>
       )}
