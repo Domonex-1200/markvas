@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, FileText, Package, Plug, SwatchBook } from "lucide-react";
+import { ArrowLeft, ChevronDown, ChevronUp, Code2, FileText, Package, Plug, SwatchBook } from "lucide-react";
 import { AssetCommerceActions } from "../components/AssetCommerceActions";
 import { InstallButton } from "../components/InstallButton";
 import { ReviewSection } from "../components/ReviewSection";
@@ -20,6 +20,74 @@ const TYPE_ICON: Record<StoreAsset["type"], React.ElementType> = {
   TEMPLATE: FileText,
   PLUGIN: Plug,
 };
+
+function CodePreview({ asset }: { asset: StoreAsset }): JSX.Element | null {
+  const [open, setOpen] = useState(false);
+
+  let label = "";
+  let lang = "";
+  let code = "";
+
+  if (asset.type === "THEME") {
+    const css = asset.metadata?.tokens?.editorCss as string | undefined;
+    if (!css) return null;
+    label = "CSS 코드";
+    lang = "css";
+    code = css;
+  } else if (asset.type === "TEMPLATE") {
+    const content = asset.metadata?.template?.content as string | undefined;
+    if (!content) return null;
+    label = "템플릿 마크다운";
+    lang = "markdown";
+    code = content;
+  } else if (asset.type === "PLUGIN") {
+    const pluginCode = asset.metadata?.plugin?.code;
+    if (!pluginCode) return null;
+    label = "플러그인 코드 (JavaScript)";
+    lang = "javascript";
+    // 가독성을 위해 간단히 포맷
+    try {
+      code = pluginCode;
+    } catch {
+      code = pluginCode;
+    }
+  } else {
+    return null;
+  }
+
+  return (
+    <div className="rounded-2xl overflow-hidden" style={{ background: "var(--bg-raised)", border: "1px solid var(--border)" }}>
+      <button
+        className="flex w-full items-center gap-3 px-7 py-5 text-left transition hover:opacity-80"
+        onClick={() => setOpen((v) => !v)}
+        type="button"
+      >
+        <Code2 size={17} style={{ color: "var(--teal)", flexShrink: 0 }} />
+        <span className="flex-1 text-base font-bold" style={{ color: "var(--text-primary)" }}>{label}</span>
+        <span className="rounded px-2 py-0.5 text-xs font-mono font-semibold" style={{ background: "var(--bg-overlay)", color: "var(--text-muted)" }}>{lang}</span>
+        {open ? <ChevronUp size={16} style={{ color: "var(--text-muted)" }} /> : <ChevronDown size={16} style={{ color: "var(--text-muted)" }} />}
+      </button>
+
+      {open && (
+        <div style={{ borderTop: "1px solid var(--border)" }}>
+          <pre
+            className="overflow-auto p-5 text-xs leading-relaxed"
+            style={{
+              background: "#0d1117",
+              color: "#e6edf3",
+              fontFamily: '"JetBrains Mono", "Fira Code", Consolas, monospace',
+              maxHeight: "420px",
+              whiteSpace: "pre-wrap",
+              wordBreak: "break-all",
+            }}
+          >
+            <code>{code}</code>
+          </pre>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function AssetDetailPage(): JSX.Element {
   const { id } = useParams<{ id: string }>();
@@ -142,6 +210,9 @@ export default function AssetDetailPage(): JSX.Element {
                 </p>
               </div>
             )}
+
+            {/* 코드 미리보기 */}
+            <CodePreview asset={asset} />
 
             {/* 에셋 정보 */}
             <div className="rounded-2xl p-7" style={{ background: "var(--bg-raised)", border: "1px solid var(--border)" }}>

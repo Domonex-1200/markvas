@@ -160,11 +160,13 @@ function OverviewSection({ token, onNav }: { token: string; onNav: (s: Section) 
           <ChartCard title="사용자 분포">
             <ResponsiveContainer width="100%" height={180}>
               <BarChart data={chartData} barSize={36}>
-                <XAxis dataKey="name" tick={{ fill: "var(--text-muted)", fontSize: 12 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: "var(--text-muted)", fontSize: 11 }} axisLine={false} tickLine={false} allowDecimals={false} />
+                <XAxis dataKey="name" tick={{ fill: "#a0aec0", fontSize: 12 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: "#718096", fontSize: 11 }} axisLine={false} tickLine={false} allowDecimals={false} />
                 <Tooltip
-                  contentStyle={{ background: "var(--bg-overlay)", border: "1px solid var(--border)", borderRadius: 10, color: "var(--text-primary)", fontSize: 13 }}
+                  contentStyle={{ background: "#1a2035", border: "1px solid #2d3748", borderRadius: 10, color: "#e2e8f0", fontSize: 13 }}
+                  labelStyle={{ color: "#e2e8f0" }}
                   cursor={{ fill: "rgba(255,255,255,0.04)" }}
+                  formatter={(value, _key, props: { payload?: { name?: string } }) => [value, props.payload?.name ?? ""]}
                 />
                 <Bar dataKey="value" radius={[6, 6, 0, 0]}>
                   {chartData.map((d, i) => <Cell key={i} fill={d.fill} />)}
@@ -176,11 +178,13 @@ function OverviewSection({ token, onNav }: { token: string; onNav: (s: Section) 
           <ChartCard title="에셋 현황">
             <ResponsiveContainer width="100%" height={180}>
               <BarChart data={assetChart} barSize={36}>
-                <XAxis dataKey="name" tick={{ fill: "var(--text-muted)", fontSize: 12 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: "var(--text-muted)", fontSize: 11 }} axisLine={false} tickLine={false} allowDecimals={false} />
+                <XAxis dataKey="name" tick={{ fill: "#a0aec0", fontSize: 12 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: "#718096", fontSize: 11 }} axisLine={false} tickLine={false} allowDecimals={false} />
                 <Tooltip
-                  contentStyle={{ background: "var(--bg-overlay)", border: "1px solid var(--border)", borderRadius: 10, color: "var(--text-primary)", fontSize: 13 }}
+                  contentStyle={{ background: "#1a2035", border: "1px solid #2d3748", borderRadius: 10, color: "#e2e8f0", fontSize: 13 }}
+                  labelStyle={{ color: "#e2e8f0" }}
                   cursor={{ fill: "rgba(255,255,255,0.04)" }}
+                  formatter={(value, _key, props: { payload?: { name?: string } }) => [value, props.payload?.name ?? ""]}
                 />
                 <Bar dataKey="value" radius={[6, 6, 0, 0]}>
                   {assetChart.map((d, i) => <Cell key={i} fill={d.fill} />)}
