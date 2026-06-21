@@ -238,7 +238,7 @@ app.whenReady().then(async () => {
       const pdfBuffer = await pdfWin.webContents.printToPDF({
         printBackground: true,
         pageSize: "A4",
-        margins: { top: 15, bottom: 15, left: 15, right: 15 },
+        marginType: "printableArea",
       });
 
       await writeFile(outputPath, pdfBuffer);
