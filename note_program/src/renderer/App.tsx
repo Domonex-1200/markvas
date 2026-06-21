@@ -1150,6 +1150,10 @@ export default function App(): JSX.Element {
         plugins={plugins}
         onClose={() => setIsPluginManagerOpen(false)}
         onRunCommand={runPluginCommand}
+        onDeleteAsset={async (assetId) => {
+          await window.markdownCanvas.uninstallAssetLocal(assetId);
+        }}
+        onApplyTheme={setThemeCss}
       />
 
       <TrashModal
