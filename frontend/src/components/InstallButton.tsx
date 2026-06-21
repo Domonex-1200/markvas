@@ -16,7 +16,7 @@ export function InstallButton({ assetId, priceCents = 0 }: Props): JSX.Element {
     if (!token) return;
     getInstalledAssets(token)
       .then((items) => {
-        if (items.some((item) => item.asset.id === assetId)) setStatus("registered");
+        if (Array.isArray(items) && items.some((item) => item.asset.id === assetId)) setStatus("registered");
       })
       .catch(() => undefined);
   }, [assetId]);

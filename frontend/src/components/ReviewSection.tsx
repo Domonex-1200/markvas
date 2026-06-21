@@ -20,11 +20,11 @@ export function ReviewSection({ assetId }: Props): JSX.Element {
   const [myBody, setMyBody] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [msg, setMsg] = useState("");
-  const alreadyReviewed = reviews.some((r) => r.userId === myUserId);
+  const alreadyReviewed = Array.isArray(reviews) && reviews.some((r) => r.userId === myUserId);
 
   useEffect(() => {
     getAssetReviews(assetId)
-      .then(setReviews)
+      .then((data) => setReviews(Array.isArray(data) ? data : []))
       .finally(() => setLoading(false));
   }, [assetId]);
 

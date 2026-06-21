@@ -11,7 +11,7 @@ export function AssetCommerceActions({ assetId }: { assetId: string }): JSX.Elem
     if (!token) return;
 
     void getWishlist(token).then((items) => {
-      if (items.some((item) => item.asset.id === assetId)) setWishlistStatus("done");
+      if (Array.isArray(items) && items.some((item) => item.asset.id === assetId)) setWishlistStatus("done");
     });
   }, [assetId]);
 
