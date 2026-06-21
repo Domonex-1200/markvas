@@ -64,6 +64,12 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<WishlistItem> wishlistItems;
 
+    @Column(nullable = false)
+    private boolean active = true;
+
+    @Column(name = "deactivated_at")
+    private Instant deactivatedAt;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt = Instant.now();
 

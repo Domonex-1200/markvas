@@ -40,6 +40,25 @@ export interface StoreAsset {
   currency?: string;
   status?: "DRAFT" | "IN_REVIEW" | "PUBLISHED" | "REJECTED";
   createdAt: string;
+  tags?: string[];
+  avgRating?: number;
+  reviewCount?: number;
+}
+
+export interface AssetReview {
+  id: string;
+  assetId: string;
+  userId: string;
+  userNickname?: string;
+  userProfilePictureUrl?: string;
+  rating: number;
+  body?: string;
+  createdAt: string;
+}
+
+export interface RatingSummary {
+  avgRating: number;
+  reviewCount: number;
 }
 
 export interface StoreCartItem     { id: string; asset: StoreAsset; addedAt: string }

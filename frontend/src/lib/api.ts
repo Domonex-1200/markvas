@@ -87,8 +87,8 @@ function logout(): void {
 }
 
 // ── 에셋 ──────────────────────────────────────────────────────────────────
-export async function getAssets(): Promise<StoreAsset[]> {
-  return (await api.get<StoreAsset[]>("/assets")).data;
+export async function getAssets(params?: { q?: string; type?: string; tag?: string }): Promise<StoreAsset[]> {
+  return (await api.get<StoreAsset[]>("/assets", { params })).data;
 }
 
 export async function getAsset(id: string): Promise<StoreAsset> {
@@ -332,6 +332,41 @@ export async function uploadFileToS3(uploadUrl: string, file: File): Promise<voi
     headers: { "Content-Type": file.type },
     body: file,
   });
+}
+
+// ── 리뷰 ─────────────────────────────────────────────────────────────────
+export async function getAssetReviews(assetId: string): Promise<import("../types").AssetReview[]> {
+  return (await api.get(`/assets/${assetId}/reviews`)).data;
+}
+
+export async function getReviewSummary(assetId: string): Promise<import("../types").RatingSummary> {
+  return (await api.get(`/assets/${assetId}/reviews/summary`)).data;
+}
+
+export async function createReview(
+  assetId: string,
+  payload: { rating: number; body?: string },
+  accessToken: string
+): Promise<import("../types").AssetReview> {
+  return (await api.post(`/assets/${assetId}/reviews`, payload, auth(accessToken))).data;
+}
+
+export async function deleteReview(assetId: string, reviewId: string, accessToken: string): Promise<void> {
+  await api.delete(`/assets/${assetId}/reviews/${reviewId}`, auth(accessToken));
+}
+
+// ── 비밀번호 재설정 ───────────────────────────────────────────────────────
+export async function forgotPassword(email: string): Promise<void> {
+  await api.post("/auth/forgot-password", { email });
+}
+
+export async function resetPassword(token: string, newPassword: string): Promise<void> {
+  await api.post("/auth/reset-password", { token, newPassword });
+}
+
+// ── Google 로그인 ─────────────────────────────────────────────────────────
+export async function googleLogin(idToken: string): Promise<{ user: import("../types").CurrentUser; tokens: import("../types").AuthTokens }> {
+  return (await api.post("/auth/google", { idToken })).data;
 }
 
 // ── 헬퍼 ──────────────────────────────────────────────────────────────────

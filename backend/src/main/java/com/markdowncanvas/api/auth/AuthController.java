@@ -34,4 +34,19 @@ public class AuthController {
     public AuthDto.UserResponse me(@AuthenticationPrincipal JwtPrincipal principal) {
         return authService.me(principal.userId());
     }
+
+    @PostMapping("/forgot-password")
+    public void forgotPassword(@Valid @RequestBody AuthDto.ForgotPasswordRequest dto) {
+        authService.forgotPassword(dto.getEmail());
+    }
+
+    @PostMapping("/reset-password")
+    public void resetPassword(@Valid @RequestBody AuthDto.ResetPasswordRequest dto) {
+        authService.resetPassword(dto.getToken(), dto.getNewPassword());
+    }
+
+    @PostMapping("/google")
+    public AuthDto.AuthResponse googleLogin(@Valid @RequestBody AuthDto.GoogleLoginRequest dto) {
+        return authService.googleLogin(dto.getIdToken());
+    }
 }

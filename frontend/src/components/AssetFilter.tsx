@@ -17,6 +17,9 @@ const categoryItems: Array<{ type: FilterType; label: string; description: strin
 export function AssetFilter({ assets }: { assets: StoreAsset[] }): JSX.Element {
   const [active, setActive] = useState<FilterType>("ALL");
   const [query, setQuery] = useState("");
+  const [activeTag, setActiveTag] = useState("");
+
+  const allTags = [...new Set(assets.flatMap((a) => a.tags ?? []))].sort();
 
   const counts: Record<FilterType, number> = {
     ALL: assets.length,
@@ -33,7 +36,8 @@ export function AssetFilter({ assets }: { assets: StoreAsset[] }): JSX.Element {
       a.title.toLowerCase().includes(q) ||
       (a.metadata.description ?? "").toLowerCase().includes(q) ||
       (a.metadata.summary ?? "").toLowerCase().includes(q);
-    return matchType && matchQuery;
+    const matchTag = !activeTag || (a.tags ?? []).includes(activeTag);
+    return matchType && matchQuery && matchTag;
   });
 
   return (
@@ -57,6 +61,25 @@ export function AssetFilter({ assets }: { assets: StoreAsset[] }): JSX.Element {
           </button>
         ))}
       </div>
+
+      {/* 태그 필터 */}
+      {allTags.length > 0 && (
+        <div className="mb-5 flex flex-wrap gap-2">
+          <button
+            className={`rounded-full px-3 py-1 text-xs font-bold transition ${activeTag === "" ? "bg-violet-600 text-white" : "bg-violet-50 text-violet-700 hover:bg-violet-100"}`}
+            onClick={() => setActiveTag("")}
+            type="button"
+          >전체</button>
+          {allTags.map((tag) => (
+            <button
+              key={tag}
+              className={`rounded-full px-3 py-1 text-xs font-bold transition ${activeTag === tag ? "bg-violet-600 text-white" : "bg-violet-50 text-violet-700 hover:bg-violet-100"}`}
+              onClick={() => setActiveTag(activeTag === tag ? "" : tag)}
+              type="button"
+            >#{tag}</button>
+          ))}
+        </div>
+      )}
 
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div>

@@ -114,6 +114,14 @@ public class AssetService {
                 .stream().map(AssetDto.AssetResponse::from).toList();
     }
 
+    public List<AssetDto.AssetResponse> search(String q, String type, String tag) {
+        AssetType assetType = (type != null && !type.isBlank()) ? AssetType.valueOf(type.toUpperCase()) : null;
+        String qParam = (q != null && !q.isBlank()) ? q : null;
+        String tagParam = (tag != null && !tag.isBlank()) ? tag : null;
+        return assets.search(qParam, assetType, tagParam)
+                .stream().map(AssetDto.AssetResponse::from).toList();
+    }
+
     public List<AssetDto.AssetResponse> listForReview(UserRole role) {
         if (role != UserRole.ADMIN) throw forbidden();
         return assets.findAllByOrderByCreatedAtDesc()
@@ -137,6 +145,7 @@ public class AssetService {
         asset.setPriceCents(dto.getPriceCents());
         asset.setCurrency(dto.getCurrency() != null ? dto.getCurrency() : "USD");
         asset.setStatus(AssetStatus.DRAFT);
+        if (dto.getTags() != null) asset.setTags(String.join(",", dto.getTags()));
         Asset saved = assets.save(asset);
 
         AssetVersion ver = new AssetVersion();
@@ -159,6 +168,7 @@ public class AssetService {
         if (dto.getPricingType() != null) asset.setPricingType(dto.getPricingType());
         if (dto.getPriceCents() != null) asset.setPriceCents(dto.getPriceCents());
         if (dto.getCurrency() != null) asset.setCurrency(dto.getCurrency());
+        if (dto.getTags() != null) asset.setTags(String.join(",", dto.getTags()));
         return AssetDto.AssetResponse.from(assets.save(asset));
     }
 

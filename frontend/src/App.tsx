@@ -13,6 +13,8 @@ import DeveloperNewAssetPage from "./pages/DeveloperNewAssetPage";
 import DeveloperAssetsPage from "./pages/DeveloperAssetsPage";
 import AdminPage from "./pages/AdminPage";
 import AdminReviewPage from "./pages/AdminReviewPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 
 export default function App() {
   return (
@@ -25,6 +27,8 @@ export default function App() {
       <Route path="/wishlist" element={<WishlistPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/me" element={<MePage />} />
       <Route path="/download" element={<DownloadPage />} />
       {/* 개발자 */}

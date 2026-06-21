@@ -20,6 +20,7 @@ public class AssetDto {
         private PricingType pricingType = PricingType.FREE;
         private int priceCents = 0;
         private String currency = "USD";
+        private java.util.List<String> tags;
 
         public String metadataAsString() {
             try { return MAPPER.writeValueAsString(metadata); }
@@ -36,6 +37,7 @@ public class AssetDto {
         private PricingType pricingType;
         private Integer priceCents;
         private String currency;
+        private java.util.List<String> tags;
 
         public String metadataAsString() {
             if (metadata == null) return null;
@@ -58,6 +60,9 @@ public class AssetDto {
         private String   currency;
         private String   status;
         private String   createdAt;
+        private java.util.List<String> tags;
+        private double   avgRating;
+        private long     reviewCount;
 
         public static AssetResponse from(Asset a) {
             AssetResponse r = new AssetResponse();
@@ -72,6 +77,10 @@ public class AssetDto {
             r.currency   = a.getCurrency();
             r.status     = a.getStatus().name();
             r.createdAt  = a.getCreatedAt().toString();
+            String raw = a.getTags();
+            r.tags = (raw == null || raw.isBlank()) ? java.util.List.of()
+                    : java.util.Arrays.stream(raw.split(",")).map(String::trim)
+                        .filter(t -> !t.isEmpty()).toList();
             return r;
         }
     }

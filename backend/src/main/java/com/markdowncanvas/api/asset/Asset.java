@@ -45,6 +45,9 @@ public class Asset {
     @Column(nullable = false, length = 20)
     private AssetStatus status = AssetStatus.DRAFT;
 
+    @Column(length = 500)
+    private String tags = "";
+
     @Column(name = "author_id", nullable = false, length = 36)
     private String authorId;
 

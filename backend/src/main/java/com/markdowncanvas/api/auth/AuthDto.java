@@ -49,4 +49,20 @@ public class AuthDto {
         private UserResponse user;
         private TokenResponse tokens;
     }
+
+    @Data
+    public static class ForgotPasswordRequest {
+        @Email @NotBlank private String email;
+    }
+
+    @Data
+    public static class ResetPasswordRequest {
+        @NotBlank private String token;
+        @NotBlank private String newPassword;
+    }
+
+    @Data
+    public static class GoogleLoginRequest {
+        @NotBlank private String idToken;
+    }
 }

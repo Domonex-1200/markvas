@@ -3,6 +3,8 @@ import { Link, useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, FileText, Package, Plug, SwatchBook } from "lucide-react";
 import { AssetCommerceActions } from "../components/AssetCommerceActions";
 import { InstallButton } from "../components/InstallButton";
+import { ReviewSection } from "../components/ReviewSection";
+import { StarRating } from "../components/StarRating";
 import { SiteHeader } from "../components/SiteHeader";
 import { getAsset } from "../lib/api";
 import type { StoreAsset } from "../types";
@@ -95,7 +97,7 @@ export default function AssetDetailPage(): JSX.Element {
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_260px]">
           {/* 왼쪽: 정보 */}
-          <div className="space-y-6">
+          <div className="space-y-6 min-w-0">
             <div className="rounded-xl border border-slate-200 bg-white p-7 shadow-sm">
               <div className="mb-4 flex flex-wrap items-center gap-2">
                 <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">
@@ -104,6 +106,15 @@ export default function AssetDetailPage(): JSX.Element {
                 <span className={`rounded-full px-3 py-1 text-xs font-bold ${isFree ? "bg-emerald-50 text-emerald-700" : "bg-blue-50 text-blue-700"}`}>
                   {isFree ? "무료" : `₩${(asset.priceCents! / 100).toLocaleString()}`}
                 </span>
+                {(asset.tags ?? []).map((tag) => (
+                  <span key={tag} className="rounded-full bg-violet-50 px-3 py-1 text-xs font-bold text-violet-700">#{tag}</span>
+                ))}
+                {(asset.reviewCount ?? 0) > 0 && (
+                  <div className="flex items-center gap-1">
+                    <StarRating value={Math.round(asset.avgRating ?? 0)} size={13} />
+                    <span className="text-xs text-slate-500">{(asset.avgRating ?? 0).toFixed(1)} ({asset.reviewCount})</span>
+                  </div>
+                )}
               </div>
 
               <h1 className="text-3xl font-black text-slate-950">{asset.title}</h1>
@@ -151,6 +162,9 @@ export default function AssetDetailPage(): JSX.Element {
                 </div>
               </dl>
             </div>
+
+            {/* 리뷰 섹션 */}
+            <ReviewSection assetId={asset.id} />
           </div>
 
           {/* 오른쪽: 설치/액션 */}

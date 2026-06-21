@@ -18,7 +18,13 @@ public class AssetController {
     private final AssetService assetService;
 
     @GetMapping
-    public List<AssetDto.AssetResponse> list() {
+    public List<AssetDto.AssetResponse> list(
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) String tag) {
+        if ((q != null && !q.isBlank()) || (type != null && !type.isBlank()) || (tag != null && !tag.isBlank())) {
+            return assetService.search(q, type, tag);
+        }
         return assetService.list();
     }
 
