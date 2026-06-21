@@ -26,6 +26,7 @@ public class AssetService {
     private final EntitlementRepository entitlements;
     private final UserAssetRepository userAssets;
     private final UserRepository users;
+    private final AssetReviewRepository assetReviews;
 
     @Value("${app.seed-data:true}")
     private boolean seedData;
@@ -123,7 +124,13 @@ public class AssetService {
 
     public List<AssetDto.AssetResponse> list() {
         return assets.findByStatusOrderByCreatedAtDesc(AssetStatus.PUBLISHED)
-                .stream().map(AssetDto.AssetResponse::from).toList();
+                .stream().map(a -> {
+                    AssetDto.AssetResponse res = AssetDto.AssetResponse.from(a);
+                    Double avg = assetReviews.avgRatingByAssetId(a.getId());
+                    res.setAvgRating(avg != null ? Math.round(avg * 10.0) / 10.0 : 0.0);
+                    res.setReviewCount(assetReviews.countByAssetId(a.getId()));
+                    return res;
+                }).toList();
     }
 
     public List<AssetDto.AssetResponse> search(String q, String type, String tag) {
@@ -141,7 +148,13 @@ public class AssetService {
     }
 
     public AssetDto.AssetResponse findOne(String id) {
-        return AssetDto.AssetResponse.from(getAsset(id));
+        Asset a = assets.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Asset not found."));
+        AssetDto.AssetResponse res = AssetDto.AssetResponse.from(a);
+        Double avg = assetReviews.avgRatingByAssetId(a.getId());
+        res.setAvgRating(avg != null ? Math.round(avg * 10.0) / 10.0 : 0.0);
+        res.setReviewCount(assetReviews.countByAssetId(a.getId()));
+        return res;
     }
 
     @Transactional

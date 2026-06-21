@@ -43,17 +43,21 @@ export interface StoreAsset {
   tags?: string[];
   avgRating?: number;
   reviewCount?: number;
+
 }
 
 export interface AssetReview {
   id: string;
   assetId: string;
-  userId: string;
+  userId?: string;
   userNickname?: string;
   userProfilePictureUrl?: string;
-  rating: number;
+  rating?: number;
   body?: string;
+  parentId?: string;
+  deleted: boolean;
   createdAt: string;
+  replies?: AssetReview[];
 }
 
 export interface RatingSummary {

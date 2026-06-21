@@ -169,7 +169,7 @@ export default function AssetDetailPage(): JSX.Element {
             </div>
 
             {/* 리뷰 섹션 */}
-            <ReviewSection assetId={asset.id} />
+            <ReviewSection assetId={asset.id} assetAuthorId={asset.authorId} />
           </div>
 
           {/* 오른쪽: 설치/액션 */}

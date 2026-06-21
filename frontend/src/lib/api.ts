@@ -349,7 +349,7 @@ export async function getReviewSummary(assetId: string): Promise<import("../type
 
 export async function createReview(
   assetId: string,
-  payload: { rating: number; body?: string },
+  payload: { rating?: number; body?: string; parentId?: string },
   accessToken: string
 ): Promise<import("../types").AssetReview> {
   return (await api.post(`/assets/${assetId}/reviews`, payload, auth(accessToken))).data;

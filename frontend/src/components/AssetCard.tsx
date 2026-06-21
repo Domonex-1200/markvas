@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import type { StoreAsset } from "../types";
-import { ArrowRight, FileText, Plug, SwatchBook } from "lucide-react";
+import { ArrowRight, FileText, Plug, Star, SwatchBook } from "lucide-react";
 import { AssetCommerceActions } from "./AssetCommerceActions";
 import { InstallButton } from "./InstallButton";
 
@@ -68,11 +68,21 @@ export function AssetCard({ asset }: { asset: StoreAsset }): JSX.Element {
           {asset.title}
         </h2>
         <p
-          className="mt-2 min-h-16 flex-1 text-sm leading-6"
+          className="mt-2 flex-1 text-sm leading-6 line-clamp-3"
           style={{ color: "var(--text-secondary)" }}
         >
           {asset.metadata.summary ?? asset.metadata.description ?? "무료 에셋입니다."}
         </p>
+        {/* 평점 */}
+        {asset.avgRating != null && asset.avgRating > 0 && (
+          <div className="mt-2 flex items-center gap-1.5">
+            <Star size={13} fill="currentColor" style={{ color: "#fbbf24" }} />
+            <span className="text-xs font-bold" style={{ color: "#fbbf24" }}>{(asset.avgRating).toFixed(1)}</span>
+            {asset.reviewCount != null && asset.reviewCount > 0 && (
+              <span className="text-xs" style={{ color: "var(--text-muted)" }}>({asset.reviewCount})</span>
+            )}
+          </div>
+        )}
 
         <div className="mt-5 grid gap-2">
           <InstallButton assetId={asset.id} />

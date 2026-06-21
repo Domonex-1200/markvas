@@ -44,6 +44,12 @@ public class AssetReview {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt = Instant.now();
 
+    @Column(name = "parent_id", length = 36)
+    private String parentId;
+
+    @Column(name = "deleted_at")
+    private Instant deletedAt;
+
     @PreUpdate
     void onUpdate() { this.updatedAt = Instant.now(); }
 }
