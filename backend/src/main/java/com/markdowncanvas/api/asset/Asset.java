@@ -70,6 +70,9 @@ public class Asset {
     @OneToMany(mappedBy = "asset", cascade = CascadeType.ALL)
     private List<WishlistItem> wishlistItems;
 
+    @OneToMany(mappedBy = "asset", cascade = CascadeType.ALL)
+    private List<AssetReview> reviews;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt = Instant.now();
 
